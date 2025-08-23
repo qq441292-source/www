@@ -1,0 +1,76 @@
+{
+  "workRecords": [
+    {
+      "id": "17558605425270ylof",
+      "type": "outbound",
+      "date": "2025-08-22",
+      "notes": "",
+      "items": [
+        {
+          "name": "张三",
+          "item": "暖光星星",
+          "quantity": "1"
+        }
+      ],
+      "createdAt": "2025-08-22T11:02:22.527Z"
+    },
+    {
+      "id": "1755860569592i84oy",
+      "type": "packaging",
+      "date": "2025-08-22",
+      "notes": "",
+      "items": [
+        {
+          "name": "王五",
+          "item": "暖光星星",
+          "quantity": "1"
+        }
+      ],
+      "createdAt": "2025-08-22T11:02:49.592Z"
+    }
+  ],
+  "items": [
+    {
+      "id": "1755860502271",
+      "name": "暖光星星",
+      "category": "窗帘灯",
+      "notes": "",
+      "createdAt": "2025-08-22T11:01:42.271Z"
+    }
+  ],
+  "customers": [
+    {
+      "id": "1755860511175",
+      "name": "张三",
+      "phone": "",
+      "address": "",
+      "notes": "",
+      "createdAt": "2025-08-22T11:01:51.175Z"
+    },
+    {
+      "id": "1755860515175",
+      "name": "李四",
+      "phone": "",
+      "address": "",
+      "notes": "",
+      "createdAt": "2025-08-22T11:01:55.175Z"
+    }
+  ],
+  "employees": [
+    {
+      "id": "1755860520167",
+      "name": "王五",
+      "phone": "",
+      "notes": "",
+      "createdAt": "2025-08-22T11:02:00.167Z"
+    },
+    {
+      "id": "1755860526488",
+      "name": "赵六",
+      "phone": "",
+      "notes": "",
+      "createdAt": "2025-08-22T11:02:06.488Z"
+    }
+  ],
+  "lastRecordType": "packaging"
+}

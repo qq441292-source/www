@@ -1,0 +1,2745 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>仓库管理系统</title>
+  <!-- 引入外部资源 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- Tailwind CSS 配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36D399',
+            danger: '#F87272',
+            warning: '#FBBD23',
+            info: '#3ABFF8',
+            dark: '#1E293B',
+            light: '#F8FAFC'
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          boxShadow: {
+            'card': '0 4px 20px rgba(0, 0, 0, 0.08)',
+            'card-hover': '0 10px 25px rgba(22, 93, 255, 0.1)',
+            'modal': '0 10px 50px rgba(0, 0, 0, 0.15)',
+          }
+        },
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/css">
+    .content-auto {
+      content-visibility: auto;
+    }
+    .modal-transition {
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .input-focus:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(22, 93, 255, 0.5);
+      border-color: #165DFF;
+    }
+    .btn-effect {
+      transition: all 200ms ease;
+    }
+    .btn-effect:hover {
+      transform: translateY(-0.125rem);
+    }
+    .btn-effect:active {
+      transform: translateY(0);
+    }
+    .animate-fadeIn {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+
+<body class="font-inter bg-gray-50 text-dark min-h-screen flex flex-col">
+  <!-- 顶部导航栏 -->
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <i class="fa fa-warehouse text-primary text-2xl"></i>
+        <h1 class="text-xl font-bold text-primary">仓库管理系统</h1>
+        <nav class="hidden md:flex items-center space-x-1">
+          <button class="nav-btn active px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="work-records">
+            <i class="fa fa-list-alt mr-1"></i>工作记录
+          </button>
+          <button class="nav-btn px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="items">
+            <i class="fa fa-box mr-1"></i>物品清单
+          </button>
+          <button class="nav-btn px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="customers">
+            <i class="fa fa-users mr-1"></i>客户管理
+          </button>
+          <button class="nav-btn px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="employees">
+            <i class="fa fa-user-friends mr-1"></i>员工管理
+          </button>
+        </nav>
+      </div>
+      
+      <!-- 导出导入按钮 -->
+      <div class="hidden md:flex items-center space-x-2">
+        <button id="export-btn" class="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-md text-sm font-medium transition-all btn-effect">
+          <i class="fa fa-download mr-1"></i>导出
+        </button>
+        <button id="import-btn" class="px-4 py-2 bg-secondary hover:bg-secondary/90 text-white rounded-md text-sm font-medium transition-all btn-effect">
+          <i class="fa fa-upload mr-1"></i>导入
+        </button>
+      </div>
+      
+      <button class="md:hidden text-primary text-xl" id="mobile-menu-btn">
+        <i class="fa fa-bars"></i>
+      </button>
+    </div>
+    
+    <!-- 移动端导航菜单 -->
+    <div class="md:hidden hidden bg-white border-t" id="mobile-menu">
+      <div class="container mx-auto px-4 py-2 flex flex-col space-y-1">
+        <button class="nav-btn active w-full text-left px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="work-records">
+          <i class="fa fa-list-alt mr-1"></i>工作记录
+        </button>
+        <button class="nav-btn w-full text-left px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="items">
+          <i class="fa fa-box mr-1"></i>物品清单
+        </button>
+        <button class="nav-btn w-full text-left px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="customers">
+          <i class="fa fa-users mr-1"></i>客户管理
+        </button>
+        <button class="nav-btn w-full text-left px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="employees">
+          <i class="fa fa-user-friends mr-1"></i>员工管理
+        </button>
+        <!-- 移动端导出导入按钮 -->
+        <div class="flex space-x-2 pt-2">
+          <button id="export-btn-mobile" class="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-md text-sm font-medium transition-all btn-effect">
+            <i class="fa fa-download mr-1"></i>导出
+          </button>
+          <button id="import-btn-mobile" class="flex-1 px-4 py-2 bg-secondary hover:bg-secondary/90 text-white rounded-md text-sm font-medium transition-all btn-effect">
+            <i class="fa fa-upload mr-1"></i>导入
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="flex-grow container mx-auto px-4 py-6">
+    <!-- 工作记录模块 -->
+    <section id="work-records" class="tab-content active">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">工作记录</h2>
+        <div class="flex items-center space-x-2">
+          <!-- 搜索框 -->
+          <div class="w-64">
+            <input type="text" id="search-input" placeholder="按姓名、物品、日期、类型搜索（可用空格分隔多个条件）" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus">
+          </div>
+          
+          <!-- 重置按钮 -->
+          <div>
+            <button id="reset-filters" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md btn-effect">
+              重置
+            </button>
+          </div>
+          <button id="add-work-record-btn" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-md flex items-center btn-effect shadow-md hover:shadow-lg">
+            <i class="fa fa-plus mr-2"></i>添加记录
+          </button>
+        </div>
+      </div>
+      
+
+      
+      <div id="work-records-container" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <!-- 工作记录卡片将通过JS动态生成 -->
+      </div>
+    </section>
+    
+    <!-- 物品清单模块 -->
+    <section id="items" class="tab-content hidden">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">物品清单</h2>
+        <div class="flex items-center space-x-2">
+          <!-- 搜索框 -->
+          <div class="w-64">
+            <input type="text" id="item-search-input" placeholder="按物品、类别搜索" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus">
+          </div>
+          
+          <!-- 重置按钮 -->
+          <div>
+            <button id="reset-item-filters" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md btn-effect">
+              重置
+            </button>
+          </div>
+          <button id="add-item-btn" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-md flex items-center btn-effect shadow-md hover:shadow-lg">
+            <i class="fa fa-plus mr-2"></i>添加物品
+          </button>
+        </div>
+      </div>
+      
+      <div id="items-container" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <!-- 物品卡片将通过JS动态生成 -->
+      </div>
+    </section>
+    
+    <!-- 客户管理模块 -->
+      <section id="customers" class="tab-content hidden">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold">客户管理</h2>
+          <div class="flex items-center space-x-2">
+            <!-- 搜索框 -->
+            <div class="w-64">
+              <input type="text" id="customer-search-input" placeholder="按姓名、物品搜索" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus">
+            </div>
+            
+            <!-- 重置按钮 -->
+            <div>
+              <button id="reset-customer-filters" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md btn-effect">
+                重置
+              </button>
+            </div>
+            <button id="add-customer-btn" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-md flex items-center btn-effect shadow-md hover:shadow-lg">
+              <i class="fa fa-plus mr-2"></i>添加客户
+            </button>
+          </div>
+        </div>
+        
+        <div id="customers-container" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <!-- 客户卡片将通过JS动态生成 -->
+        </div>
+      </section>
+    
+    <!-- 员工管理模块 -->
+    <section id="employees" class="tab-content hidden">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">员工管理</h2>
+        <div class="flex items-center space-x-2">
+          <!-- 搜索框 -->
+          <div class="w-64">
+            <input type="text" id="employee-search" placeholder="按姓名、物品、打包、装卸货搜索" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus">
+          </div>
+          
+          <!-- 重置按钮 -->
+          <div>
+            <button id="reset-employee-search" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md btn-effect">
+              重置
+            </button>
+          </div>
+          <button id="add-employee-btn" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-md flex items-center btn-effect shadow-md hover:shadow-lg">
+            <i class="fa fa-plus mr-2"></i>添加员工
+          </button>
+        </div>
+      </div>
+      
+      <div id="employees-container" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <!-- 员工卡片将通过JS动态生成 -->
+      </div>
+    </section>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="bg-white border-t mt-8 py-4">
+    <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
+      <p>© 2023 仓库管理系统 - 版权所有</p>
+    </div>
+  </footer>
+
+  <!-- 添加工作记录弹窗 -->
+  <div id="work-record-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 opacity-0">
+    <div class="bg-white rounded-xl shadow-modal w-full max-w-2xl max-h-[90vh] overflow-y-auto transform scale-95 modal-transition">
+      <div class="p-5 border-b flex justify-between items-center">
+        <h3 class="text-xl font-bold text-gray-800">添加工作记录</h3>
+        <button class="close-modal text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100 transition-colors">
+          <i class="fa fa-times text-xl"></i>
+        </button>
+      </div>
+      
+      <div class="p-5">
+        <!-- 记录类型选择 -->
+        <div class="mb-5">
+          <label class="block text-sm font-medium text-gray-700 mb-2">记录类型</label>
+          <div class="grid grid-cols-5 gap-2" id="record-type-tabs">
+            <button class="record-type-btn px-3 py-2 rounded-md text-sm font-medium border transition-all" data-type="outbound">出库</button>
+            <button class="record-type-btn px-3 py-2 rounded-md text-sm font-medium border transition-all" data-type="inbound">入库</button>
+            <button class="record-type-btn px-3 py-2 rounded-md text-sm font-medium border transition-all" data-type="packaging">包装</button>
+            <button class="record-type-btn px-3 py-2 rounded-md text-sm font-medium border transition-all" data-type="packing">打包</button>
+            <button class="record-type-btn px-3 py-2 rounded-md text-sm font-medium border transition-all" data-type="loading">装卸货</button>
+          </div>
+        </div>
+        
+        <!-- 出库/入库/包装表单 -->
+        <div id="standard-form" class="record-form">
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">物品信息</label>
+            <div id="items-container-form" class="space-y-3">
+              <div class="item-row grid grid-cols-12 gap-2">
+                <input type="text" placeholder="姓名" class="name-input col-span-4 px-3 py-2 border border-gray-300 rounded-md input-focus" required>
+                <input type="text" placeholder="物品" class="item-input col-span-5 px-3 py-2 border border-gray-300 rounded-md input-focus">
+                <input type="number" placeholder="数量" class="quantity-input col-span-2 px-3 py-2 border border-gray-300 rounded-md input-focus">
+                <button type="button" class="remove-item-btn text-gray-500 hover:text-danger self-center px-2 p-1 rounded-full hover:bg-gray-100 transition-colors">
+                  <i class="fa fa-trash"></i>
+                </button>
+              </div>
+            </div>
+            <button type="button" id="add-item-row" class="mt-2 text-primary hover:text-primary/80 text-sm flex items-center btn-effect">
+              <i class="fa fa-plus-circle mr-1"></i> 添加一行
+            </button>
+          </div>
+        </div>
+        
+        <!-- 打包/装卸货表单 -->
+        <div id="time-form" class="record-form hidden">
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">时间信息</label>
+            <div id="times-container-form" class="space-y-3">
+              <div class="time-row grid grid-cols-12 gap-2">
+                <input type="datetime-local" class="start-time-input col-span-5 px-3 py-2 border border-gray-300 rounded-md input-focus">
+                <div class="col-span-2 flex items-center justify-center text-gray-500">至</div>
+                <input type="datetime-local" class="end-time-input col-span-5 px-3 py-2 border border-gray-300 rounded-md input-focus">
+                <button type="button" class="remove-time-btn text-gray-500 hover:text-danger self-center px-2 p-1 rounded-full hover:bg-gray-100 transition-colors">
+                  <i class="fa fa-trash"></i>
+                </button>
+              </div>
+            </div>
+            <button type="button" id="add-time-row" class="mt-2 text-primary hover:text-primary/80 text-sm flex items-center btn-effect">
+              <i class="fa fa-plus-circle mr-1"></i> 添加时间段
+            </button>
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">参与人员</label>
+            <input type="text" placeholder="请输入参与人员姓名，用逗号分隔" id="participants-input" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus" required>
+          </div>
+        </div>
+        
+        <!-- 公共表单字段 -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">日期</label>
+          <input type="date" id="record-date" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus">
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">备注</label>
+          <textarea id="record-notes" rows="3" placeholder="请输入备注信息" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus"></textarea>
+        </div>
+      </div>
+      
+      <div class="p-5 border-t bg-gray-50 rounded-b-xl flex justify-between items-center">
+        <div id="edit-warning" class="text-red-500 text-sm hidden">
+          注：从编辑进入只能修改记录类型和物品信息，不要点增加一行
+        </div>
+        <div class="flex gap-3 ml-auto">
+          <button class="close-modal px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 btn-effect">取消</button>
+          <button id="save-work-record" class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 btn-effect shadow-sm hover:shadow">保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 添加物品弹窗 -->
+  <div id="item-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 opacity-0">
+    <div class="bg-white rounded-xl shadow-modal w-full max-w-md transform scale-95 modal-transition">
+      <div class="p-5 border-b flex justify-between items-center">
+        <h3 class="text-xl font-bold text-gray-800">添加物品</h3>
+        <button class="close-modal text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100 transition-colors">
+          <i class="fa fa-times text-xl"></i>
+        </button>
+      </div>
+      
+      <div class="p-5">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">物品名称 <span class="text-danger">*</span></label>
+          <input type="text" id="item-name" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus" required>
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">类别</label>
+          <input type="text" id="item-category" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus">
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">备注</label>
+          <textarea id="item-notes" rows="3" placeholder="请输入备注信息" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus"></textarea>
+        </div>
+      </div>
+      
+      <div class="p-5 border-t bg-gray-50 rounded-b-xl flex justify-end gap-3">
+        <button class="close-modal px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 btn-effect">取消</button>
+        <button id="save-item" class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 btn-effect shadow-sm hover:shadow">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 添加客户弹窗 -->
+  <div id="customer-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 opacity-0">
+    <div class="bg-white rounded-xl shadow-modal w-full max-w-md transform scale-95 modal-transition">
+      <div class="p-5 border-b flex justify-between items-center">
+        <h3 class="text-xl font-bold text-gray-800">添加客户</h3>
+        <button class="close-modal text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100 transition-colors">
+          <i class="fa fa-times text-xl"></i>
+        </button>
+      </div>
+      
+      <div class="p-5">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">客户姓名 <span class="text-danger">*</span></label>
+          <input type="text" id="customer-name" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus" required>
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">电话号码</label>
+          <input type="tel" id="customer-phone" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus">
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">地址</label>
+          <input type="text" id="customer-address" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus">
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">备注</label>
+          <textarea id="customer-notes" rows="3" placeholder="请输入备注信息" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus"></textarea>
+        </div>
+      </div>
+      
+      <div class="p-5 border-t bg-gray-50 rounded-b-xl flex justify-end gap-3">
+        <button class="close-modal px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 btn-effect">取消</button>
+        <button id="save-customer" class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 btn-effect shadow-sm hover:shadow">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 添加员工弹窗 -->
+  <div id="employee-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 opacity-0">
+    <div class="bg-white rounded-xl shadow-modal w-full max-w-md transform scale-95 modal-transition">
+      <div class="p-5 border-b flex justify-between items-center">
+        <h3 class="text-xl font-bold text-gray-800">添加员工</h3>
+        <button class="close-modal text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100 transition-colors">
+          <i class="fa fa-times text-xl"></i>
+        </button>
+      </div>
+      
+      <div class="p-5">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">员工姓名 <span class="text-danger">*</span></label>
+          <input type="text" id="employee-name" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus" required>
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">电话号码（选填）</label>
+          <input type="tel" id="employee-phone" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus">
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">备注</label>
+          <textarea id="employee-notes" rows="3" placeholder="请输入备注信息" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus"></textarea>
+        </div>
+      </div>
+      
+      <div class="p-5 border-t bg-gray-50 rounded-b-xl flex justify-end gap-3">
+        <button class="close-modal px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 btn-effect">取消</button>
+        <button id="save-employee" class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 btn-effect shadow-sm hover:shadow">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 数据存储与管理
+    const DataManager = {
+      // 初始化数据
+      init() {
+        if (!localStorage.getItem('workRecords')) {
+          localStorage.setItem('workRecords', JSON.stringify([]));
+        }
+        if (!localStorage.getItem('items')) {
+          localStorage.setItem('items', JSON.stringify([]));
+        }
+        if (!localStorage.getItem('customers')) {
+          localStorage.setItem('customers', JSON.stringify([]));
+        }
+        if (!localStorage.getItem('employees')) {
+          localStorage.setItem('employees', JSON.stringify([]));
+        }
+        if (!localStorage.getItem('lastRecordType')) {
+          localStorage.setItem('lastRecordType', 'outbound');
+        }
+      },
+      
+      // 工作记录相关方法
+      getWorkRecords() {
+        return JSON.parse(localStorage.getItem('workRecords') || '[]');
+      },
+      
+      addWorkRecord(record) {
+        const records = this.getWorkRecords();
+        
+        // 如果是出库、入库或包装类型，并且有多个物品，则为每个物品创建独立记录
+        if (['outbound', 'inbound', 'packaging'].includes(record.type) && record.items && record.items.length > 0) {
+          record.items.forEach(item => {
+            // 为每个物品创建独立记录
+            records.push({
+              id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+              type: record.type,
+              date: record.date,
+              notes: record.notes,
+              items: [item], // 只包含当前物品
+              createdAt: new Date().toISOString()
+            });
+          });
+        } else {
+          // 其他类型或没有物品的记录按原样保存
+          records.push({
+            id: Date.now().toString(),
+            ...record,
+            createdAt: new Date().toISOString()
+          });
+        }
+        
+        localStorage.setItem('workRecords', JSON.stringify(records));
+        return records;
+      },
+      
+      updateWorkRecord(updatedRecord) {
+        const records = this.getWorkRecords();
+        const index = records.findIndex(record => record.id === updatedRecord.id);
+        
+        if (index !== -1) {
+          // 如果是出库、入库或包装类型，并且有多个物品，则为每个物品创建独立记录
+          // 但如果这是编辑操作（即记录已存在），则更新原有记录而不是创建新记录
+          if (['outbound', 'inbound', 'packaging'].includes(updatedRecord.type) && updatedRecord.items && updatedRecord.items.length > 0) {
+            records[index] = updatedRecord;
+          } else {
+            // 其他类型或没有物品的记录按原样更新
+            records[index] = updatedRecord;
+          }
+          
+          localStorage.setItem('workRecords', JSON.stringify(records));
+        }
+        
+        return records;
+      },
+      
+      deleteWorkRecord(id) {
+        let records = this.getWorkRecords();
+        records = records.filter(record => record.id !== id);
+        localStorage.setItem('workRecords', JSON.stringify(records));
+        return records;
+      },
+      
+      // 物品相关方法
+      getItems() {
+        return JSON.parse(localStorage.getItem('items') || '[]');
+      },
+      
+      addItem(item) {
+        const items = this.getItems();
+        items.push({
+          id: Date.now().toString(),
+          ...item,
+          createdAt: new Date().toISOString()
+        });
+        localStorage.setItem('items', JSON.stringify(items));
+        return items;
+      },
+      
+      updateItem(updatedItem) {
+        const items = this.getItems();
+        const index = items.findIndex(item => item.id === updatedItem.id);
+        if (index !== -1) {
+          items[index] = updatedItem;
+          localStorage.setItem('items', JSON.stringify(items));
+        }
+        return items;
+      },
+      
+      deleteItem(id) {
+        let items = this.getItems();
+        items = items.filter(item => item.id !== id);
+        localStorage.setItem('items', JSON.stringify(items));
+        return items;
+      },
+      
+      // 客户相关方法
+      getCustomers() {
+        return JSON.parse(localStorage.getItem('customers') || '[]');
+      },
+      
+      addCustomer(customer) {
+        const customers = this.getCustomers();
+        customers.push({
+          id: Date.now().toString(),
+          ...customer,
+          createdAt: new Date().toISOString()
+        });
+        localStorage.setItem('customers', JSON.stringify(customers));
+        return customers;
+      },
+      
+      updateCustomer(updatedCustomer) {
+        const customers = this.getCustomers();
+        const index = customers.findIndex(customer => customer.id === updatedCustomer.id);
+        if (index !== -1) {
+          customers[index] = updatedCustomer;
+          localStorage.setItem('customers', JSON.stringify(customers));
+        }
+        return customers;
+      },
+      
+      deleteCustomer(id) {
+        let customers = this.getCustomers();
+        customers = customers.filter(customer => customer.id !== id);
+        localStorage.setItem('customers', JSON.stringify(customers));
+        return customers;
+      },
+      
+      // 员工相关方法
+      getEmployees() {
+        return JSON.parse(localStorage.getItem('employees') || '[]');
+      },
+      
+      addEmployee(employee) {
+        const employees = this.getEmployees();
+        employees.push({
+          id: Date.now().toString(),
+          ...employee,
+          createdAt: new Date().toISOString()
+        });
+        localStorage.setItem('employees', JSON.stringify(employees));
+        return employees;
+      },
+      
+      updateEmployee(updatedEmployee) {
+        const employees = this.getEmployees();
+        const index = employees.findIndex(employee => employee.id === updatedEmployee.id);
+        if (index !== -1) {
+          employees[index] = updatedEmployee;
+          localStorage.setItem('employees', JSON.stringify(employees));
+        }
+        return employees;
+      },
+      
+      deleteEmployee(id) {
+        let employees = this.getEmployees();
+        employees = employees.filter(employee => employee.id !== id);
+        localStorage.setItem('employees', JSON.stringify(employees));
+        return employees;
+      },
+      
+      // 记录类型相关
+      getLastRecordType() {
+        return localStorage.getItem('lastRecordType') || 'outbound';
+      },
+      
+      setLastRecordType(type) {
+        localStorage.setItem('lastRecordType', type);
+      }
+    };
+
+    // 导出数据功能
+    function exportData() {
+      const data = {
+        workRecords: DataManager.getWorkRecords(),
+        items: DataManager.getItems(),
+        customers: DataManager.getCustomers(),
+        employees: DataManager.getEmployees(),
+        lastRecordType: DataManager.getLastRecordType()
+      };
+      
+      const dataStr = JSON.stringify(data, null, 2);
+      const dataBlob = new Blob([dataStr], {type: 'application/json'});
+      
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(dataBlob);
+      link.download = 'warehouse-data.json';
+      link.click();
+    }
+    
+    // 导入数据功能
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          
+          // 更新localStorage
+          if (data.workRecords) {
+            localStorage.setItem('workRecords', JSON.stringify(data.workRecords));
+          }
+          if (data.items) {
+            localStorage.setItem('items', JSON.stringify(data.items));
+          }
+          if (data.customers) {
+            localStorage.setItem('customers', JSON.stringify(data.customers));
+          }
+          if (data.employees) {
+            localStorage.setItem('employees', JSON.stringify(data.employees));
+          }
+          if (data.lastRecordType) {
+            localStorage.setItem('lastRecordType', data.lastRecordType);
+          }
+          
+          // 重新初始化数据管理器
+          DataManager.init();
+          
+          // 重新渲染UI
+          UIManager.renderAll();
+          
+          alert('数据导入成功！');
+        } catch (error) {
+          console.error('导入数据时出错:', error);
+          alert('导入数据失败，请确保选择的是有效的JSON文件。');
+        }
+      };
+      reader.readAsText(file);
+    }
+    
+    // UI渲染管理器
+    const UIManager = {
+      // 初始化UI
+      init() {
+        this.filtersInitialized = false;
+        this.customerFiltersInitialized = false;
+        this.itemFiltersInitialized = false;
+        this.renderAll();
+        this.setupEventListeners();
+        this.setDefaultDate();
+        this.setLastRecordType();
+      },
+      
+      // 渲染所有数据
+      renderAll() {
+        this.renderWorkRecords();
+        this.renderItems();
+        this.renderCustomers();
+        this.renderEmployees();
+      },
+      
+      // 渲染工作记录
+      renderWorkRecords(filteredRecords = null) {
+        const records = filteredRecords || DataManager.getWorkRecords();
+        const container = document.getElementById('work-records-container');
+        container.innerHTML = '';
+        
+        if (records.length === 0) {
+          container.innerHTML = `
+            <div class="col-span-full py-12 text-center">
+              <i class="fa fa-file-text-o text-gray-300 text-5xl mb-4"></i>
+              <p class="text-gray-500">暂无工作记录，点击"添加记录"按钮创建</p>
+            </div>
+          `;
+          return;
+        }
+        
+        // 按日期分组记录
+        const groupedRecords = {};
+        records.forEach(record => {
+          const date = new Date(record.date).toLocaleDateString();
+          if (!groupedRecords[date]) {
+            groupedRecords[date] = [];
+          }
+          groupedRecords[date].push(record);
+        });
+        
+        // 搜索和筛选功能
+        const searchInput = document.getElementById('search-input');
+        const resetButton = document.getElementById('reset-filters');
+        
+        // 如果是首次渲染，绑定事件监听器
+        if (!this.filtersInitialized) {
+          // 搜索框实时筛选
+          searchInput.addEventListener('input', (e) => {
+            this.filterRecords();
+          });
+          
+          // 重置按钮
+          resetButton.addEventListener('click', (e) => {
+            searchInput.value = '';
+            this.filterRecords();
+          });
+          
+          this.filtersInitialized = true;
+        }
+        
+        // 按日期倒序排列
+        const sortedDates = Object.keys(groupedRecords).sort((a, b) => new Date(b) - new Date(a));
+        
+        // 渲染分组记录
+        sortedDates.forEach((date, index) => {
+          const recordsForDate = groupedRecords[date];
+          
+          // 添加日期标题
+          const dateHeader = document.createElement('div');
+          dateHeader.className = 'col-span-full py-2';
+          dateHeader.innerHTML = `<h3 class="text-lg font-bold text-gray-700">${date}</h3><div class="border-b border-gray-200 my-2"></div>`;
+          container.appendChild(dateHeader);
+          
+          // 渲染该日期的记录
+          recordsForDate.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                .forEach(record => {
+          const typeLabels = {
+            'outbound': { text: '出库', class: 'bg-danger/10 text-danger' },
+            'inbound': { text: '入库', class: 'bg-secondary/10 text-secondary' },
+            'packaging': { text: '包装', class: 'bg-warning/10 text-warning' },
+            'packing': { text: '打包', class: 'bg-info/10 text-info' },
+            'loading': { text: '装卸货', class: 'bg-primary/10 text-primary' }
+          };
+          
+          const typeInfo = typeLabels[record.type];
+          let contentHTML = '';
+          
+          if (['outbound', 'inbound', 'packaging'].includes(record.type)) {
+            contentHTML = `
+              <div class="mt-3 space-y-2">
+                ${record.items.map(item => `
+                  <div class="flex justify-between text-sm">
+                    <span><strong>${item.name}</strong> - ${item.item} <span class="font-medium">(${item.quantity})</span></span>
+                  </div>
+                `).join('')}
+              </div>
+            `;
+          } else {
+            contentHTML = `
+              <div class="mt-3 space-y-2">
+                <div class="text-sm">
+                  <strong>参与人员:</strong> ${record.participants}
+                </div>
+                ${record.times.map(time => `
+                  <div class="flex justify-start text-sm text-gray-600">
+                    <span>${new Date(time.start).toLocaleTimeString()}</span>
+                    <span class="mx-2">至</span>
+                    <span>${new Date(time.end).toLocaleTimeString()}</span>
+                  </div>
+                `).join('')}
+              </div>
+            `;
+          }
+          
+          // 定义类型背景色映射
+          const typeBackgrounds = {
+            'outbound': 'bg-danger/5',
+            'inbound': 'bg-secondary/5',
+            'packaging': 'bg-warning/5',
+            'packing': 'bg-info/5',
+            'loading': 'bg-primary/5'
+          };
+          
+          const backgroundClass = typeBackgrounds[record.type] || 'bg-white';
+          
+          const card = document.createElement('div');
+          card.className = `${backgroundClass} rounded-lg p-4 shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1`;
+          card.innerHTML = `
+            <div class="flex justify-between items-start">
+              <span class="px-2 py-1 rounded-full text-sm font-medium ${typeInfo.class}">${typeInfo.text}</span>
+              <span class="text-xs text-gray-500">${new Date(record.date).toLocaleDateString()}</span>
+            </div>
+            
+            ${contentHTML}
+            
+            ${record.notes ? `
+              <div class="mt-3 pt-3 border-t border-gray-100 text-sm text-gray-600">
+                <strong>备注:</strong> ${record.notes}
+              </div>
+            ` : ''}
+            
+            <div class="mt-3 text-xs text-gray-400">
+              记录于 ${new Date(record.createdAt).toLocaleString()}
+            </div>
+            
+            <div class="mt-3 flex justify-end space-x-2">
+              <button class="edit-btn text-primary hover:text-primary/80 text-sm flex items-center" data-id="${record.id}">
+                <i class="fa fa-edit mr-1"></i> 编辑
+              </button>
+              <button class="delete-btn text-danger hover:text-danger/80 text-sm flex items-center" data-id="${record.id}">
+                <i class="fa fa-trash mr-1"></i> 删除
+              </button>
+            </div>
+          `;
+          
+          container.appendChild(card);
+        });
+        
+        // 在日期组之间添加分割线（除了最后一组）
+        if (index < sortedDates.length - 1) {
+          const divider = document.createElement('div');
+          divider.className = 'col-span-full my-6';
+          divider.innerHTML = '<div class="border-t border-gray-300"></div>';
+          container.appendChild(divider);
+        }
+      });
+      },
+      
+      // 筛选记录
+      filterRecords() {
+        const searchInput = document.getElementById('search-input');
+        
+        const searchTerm = searchInput.value.toLowerCase();
+        
+        // 获取所有记录
+        const allRecords = DataManager.getWorkRecords();
+        
+        // 类型标签映射
+        const typeLabels = {
+          'outbound': '出库',
+          'inbound': '入库',
+          'packaging': '包装',
+          'packing': '打包',
+          'loading': '装卸货'
+        };
+        
+        // 应用筛选条件
+        const filteredRecords = allRecords.filter(record => {
+          // 搜索筛选
+          if (searchTerm) {
+            // 按空格分割搜索词
+            const searchTerms = searchTerm.split(' ').filter(term => term.length > 0);
+            
+            // 检查每个搜索词是否匹配姓名、物品、日期或类型
+            for (const term of searchTerms) {
+              // 检查姓名
+              const matchesName = record.items && record.items.some(item => 
+                item.name && item.name.toLowerCase().includes(term)
+              );
+              
+              // 检查物品
+              const matchesItem = record.items && record.items.some(item => 
+                item.item && item.item.toLowerCase().includes(term)
+              );
+              
+              // 检查日期
+              const matchesDate = record.date && new Date(record.date).toLocaleDateString().includes(term);
+              
+              // 对于时间记录类型，检查参与人员
+              const matchesParticipants = record.participants && 
+                record.participants.toLowerCase().includes(term);
+              
+              // 检查类型
+              const matchesType = typeLabels[record.type] && typeLabels[record.type].includes(term);
+              
+              // 如果当前搜索词不匹配任何条件，则该记录不匹配
+              if (!(matchesName || matchesItem || matchesDate || matchesParticipants || matchesType)) {
+                return false;
+              }
+            }
+          }
+          
+          return true;
+        });
+        
+        // 重新渲染筛选后的记录
+        this.renderWorkRecords(filteredRecords);
+      },
+      
+      // 渲染物品清单
+      renderItems(filteredItems = null) {
+        const items = filteredItems || DataManager.getItems();
+        const workRecords = DataManager.getWorkRecords();
+        const container = document.getElementById('items-container');
+        container.innerHTML = '';
+        
+        if (items.length === 0) {
+          container.innerHTML = `
+            <div class="col-span-full py-12 text-center">
+              <i class="fa fa-box text-gray-300 text-5xl mb-4"></i>
+              <p class="text-gray-500">暂无物品记录，点击"添加物品"按钮创建</p>
+            </div>
+          `;
+          return;
+        }
+        
+        // 绑定搜索事件
+        if (!this.itemFiltersInitialized) {
+          const searchInput = document.getElementById('item-search-input');
+          const resetButton = document.getElementById('reset-item-filters');
+          
+          searchInput.addEventListener('input', (e) => {
+            this.filterItems();
+          });
+          
+          resetButton.addEventListener('click', (e) => {
+            searchInput.value = '';
+            this.filterItems();
+          });
+          
+          this.itemFiltersInitialized = true;
+        }
+        
+        items.forEach(item => {
+          // 计算出入库统计
+          let inCount = 0;
+          let outCount = 0;
+          const relatedPeople = new Set();
+          
+          workRecords.forEach(record => {
+            if (record.type === 'inbound' || record.type === 'outbound' || record.type === 'packaging') {
+              record.items.forEach(i => {
+                if (i.item === item.name) {
+                  if (record.type === 'inbound') {
+                    inCount += parseInt(i.quantity) || 0;
+                  } else if (record.type === 'outbound') {
+                    outCount += parseInt(i.quantity) || 0;
+                  }
+                  relatedPeople.add(i.name);
+                }
+              });
+            }
+          });
+          
+          const currentStock = inCount - outCount;
+          
+          const card = document.createElement('div');
+          card.className = 'bg-white rounded-xl p-5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100';
+          card.innerHTML = `
+            <div class="flex justify-between items-start">
+              <h4 class="font-bold text-lg">${item.name}</h4>
+              <span class="px-2 py-1 rounded-full text-xs font-medium ${currentStock >= 0 ? 'bg-secondary/10 text-secondary' : 'bg-danger/10 text-danger'}">
+                库存: ${currentStock}
+              </span>
+            </div>
+            
+            <div class="mt-2 text-sm text-gray-600">
+              <div><strong>类别:</strong> ${item.category || '未分类'}</div>
+              <div class="mt-1"><strong>入库:</strong> ${inCount} | <strong>出库:</strong> ${outCount}</div>
+              ${relatedPeople.size > 0 ? `
+                <div class="mt-1">
+                  <strong>相关人员:</strong>
+                  <div class="related-people-container" data-item="${item.name}">
+                    ${(() => {
+                      const peopleArray = Array.from(relatedPeople);
+                      // 获取客户和员工列表
+                      const customers = DataManager.getCustomers();
+                      const employees = DataManager.getEmployees();
+                      
+                      return peopleArray.map((person, index) => {
+                        // 判断是员工还是客户
+                        const isEmployee = employees.some(emp => emp.name === person);
+                        const isCustomer = customers.some(cust => cust.name === person);
+                        
+                        // 确定文本颜色：既是客户又是员工则显示深黄色，仅是员工显示深绿色，否则显示蓝色
+                        let textColor = 'text-blue-500'; // 默认为客户颜色
+                        let fontWeight = '';
+                        
+                        if (isEmployee && isCustomer) {
+                          textColor = 'text-yellow-700'; // 既是客户又是员工
+                          fontWeight = 'font-bold';
+                        } else if (isEmployee) {
+                          textColor = 'text-green-700'; // 仅是员工
+                          fontWeight = 'font-bold';
+                        }
+                        
+                        return `
+                          <span class="cursor-pointer ${textColor} hover:underline ${fontWeight} ${index >= 5 ? 'hidden' : ''}" data-person="${person}" data-item="${item.name}">${person}</span>
+                          ${index < peopleArray.length - 1 ? `<span class="separator ${index >= 4 ? 'hidden' : ''}">, </span>` : ''}
+                        `;
+                      }).join('');
+                    })()}
+                    ${Array.from(relatedPeople).length > 5 ? `
+                      <button class="expand-people-btn text-blue-500 hover:underline text-sm ml-1" data-item="${item.name}" data-expanded="false">
+                        展开 (${Array.from(relatedPeople).length - 5}人)
+                      </button>
+                    ` : ''}
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+            
+            ${item.notes ? `
+              <div class="mt-3 pt-3 border-t border-gray-100 text-sm text-gray-600">
+                <strong>备注:</strong> ${item.notes}
+              </div>
+            ` : ''}
+            
+            <div class="mt-3 flex justify-end space-x-2">
+              <button class="edit-btn text-primary hover:text-primary/80 text-sm flex items-center" data-id="${item.id}">
+                <i class="fa fa-edit mr-1"></i> 编辑
+              </button>
+              <button class="delete-btn text-danger hover:text-danger/80 text-sm flex items-center" data-id="${item.id}">
+                <i class="fa fa-trash mr-1"></i> 删除
+              </button>
+            </div>
+          `;
+          
+          container.appendChild(card);
+        });
+      },
+      
+      // 筛选物品
+      filterItems() {
+        const searchInput = document.getElementById('item-search-input');
+        const searchTerm = searchInput.value.toLowerCase();
+        
+        // 获取所有物品
+        const allItems = DataManager.getItems();
+        
+        // 应用筛选条件
+        const filteredItems = allItems.filter(item => {
+          // 搜索筛选
+          if (searchTerm) {
+            // 检查物品名称
+            const matchesName = item.name && item.name.toLowerCase().includes(searchTerm);
+            
+            // 检查类别
+            const matchesCategory = item.category && item.category.toLowerCase().includes(searchTerm);
+            
+            if (!(matchesName || matchesCategory)) {
+              return false;
+            }
+          }
+          
+          return true;
+        });
+        
+        // 重新渲染筛选后的物品
+        this.renderItems(filteredItems);
+      },
+      
+      // 筛选员工
+      filterEmployees() {
+        const searchTerm = document.getElementById('employee-search').value.toLowerCase();
+        const employees = DataManager.getEmployees();
+        const workRecords = DataManager.getWorkRecords();
+        
+        if (!searchTerm) {
+          this.renderEmployees();
+          return;
+        }
+        
+        const filteredEmployees = employees.filter(employee => {
+          // 搜索员工姓名
+          if (employee.name.toLowerCase().includes(searchTerm)) {
+            return true;
+          }
+          
+          // 搜索员工处理的物品
+          let hasMatchingItem = false;
+          workRecords.forEach(record => {
+            if (record.type === 'packaging') {
+              if (record.items.some(item => 
+                item.name === employee.name && 
+                item.item && 
+                item.item.toLowerCase().includes(searchTerm)
+              )) {
+                hasMatchingItem = true;
+              }
+            }
+          });
+          
+          if (hasMatchingItem) {
+            return true;
+          }
+          
+          // 搜索员工参与的打包和装卸货记录
+          let hasMatchingWork = false;
+          workRecords.forEach(record => {
+            if ((record.type === 'packing' || record.type === 'loading') && 
+                record.participants && 
+                record.participants.includes(employee.name)) {
+              // 检查记录类型是否匹配搜索词
+              if (record.type === 'packing' && searchTerm.includes('打包')) {
+                hasMatchingWork = true;
+              } else if (record.type === 'loading' && searchTerm.includes('装卸')) {
+                hasMatchingWork = true;
+              }
+            }
+          });
+          
+          return hasMatchingWork;
+        });
+        
+        this.renderEmployees(filteredEmployees);
+      },
+      
+      // 渲染客户管理
+      renderCustomers(filteredCustomers = null) {
+        const customers = filteredCustomers || DataManager.getCustomers();
+        const workRecords = DataManager.getWorkRecords();
+        const container = document.getElementById('customers-container');
+        container.innerHTML = '';
+        
+        if (customers.length === 0) {
+          container.innerHTML = `
+            <div class="col-span-full py-12 text-center">
+              <i class="fa fa-users text-gray-300 text-5xl mb-4"></i>
+              <p class="text-gray-500">暂无客户记录，点击"添加客户"按钮创建</p>
+            </div>
+          `;
+          return;
+        }
+        
+        // 绑定搜索事件
+        if (!this.customerFiltersInitialized) {
+          const searchInput = document.getElementById('customer-search-input');
+          const resetButton = document.getElementById('reset-customer-filters');
+          
+          searchInput.addEventListener('input', (e) => {
+            this.filterCustomers();
+          });
+          
+          resetButton.addEventListener('click', (e) => {
+            searchInput.value = '';
+            this.filterCustomers();
+          });
+          
+          this.customerFiltersInitialized = true;
+        }
+        
+        customers.forEach(customer => {
+          // 查找相关记录
+          const relatedRecords = workRecords.filter(record => {
+            if (record.type === 'inbound' || record.type === 'outbound' || record.type === 'packaging') {
+              return record.items.some(item => item.name === customer.name);
+            }
+            return false;
+          });
+          
+          // 计算出入库统计
+          let inCount = 0;
+          let outCount = 0;
+          let lastRecordDate = null;
+          
+          // 用于存储客户物品的出入库数据
+          const itemStats = {};
+          
+          relatedRecords.forEach(record => {
+            if (!lastRecordDate || new Date(record.date) > new Date(lastRecordDate)) {
+              lastRecordDate = record.date;
+            }
+            
+            record.items.forEach(item => {
+              if (item.name === customer.name) {
+                // 计算总出入库数量
+                if (record.type === 'inbound') {
+                  inCount += parseInt(item.quantity) || 0;
+                } else if (record.type === 'outbound') {
+                  outCount += parseInt(item.quantity) || 0;
+                }
+                
+                // 记录每个物品的出入库数据
+                if (!itemStats[item.item]) {
+                  itemStats[item.item] = { in: 0, out: 0 };
+                }
+                
+                if (record.type === 'inbound') {
+                  itemStats[item.item].in += parseInt(item.quantity) || 0;
+                } else if (record.type === 'outbound') {
+                  itemStats[item.item].out += parseInt(item.quantity) || 0;
+                }
+              }
+            });
+          });
+          
+          // 生成物品出入库数据的HTML
+          let itemStatsHTML = '';
+          for (const [itemName, stats] of Object.entries(itemStats)) {
+            itemStatsHTML += `
+              <div class="flex justify-between text-sm">
+                <span class="text-primary hover:text-primary/80 cursor-pointer" data-item="${itemName}" data-name="${customer.name}">${itemName}</span>
+                <span>入库: ${stats.in} | 出库: ${stats.out}</span>
+              </div>`;
+          }
+          
+          const card = document.createElement('div');
+          card.className = 'bg-white rounded-xl p-5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100';
+          card.innerHTML = `
+            <div class="flex justify-between items-start">
+              <h4 class="font-bold text-lg">${customer.name}</h4>
+            </div>
+            
+            <div class="mt-2 text-sm text-gray-600">
+              ${customer.phone ? `<div><strong>电话:</strong> ${customer.phone}</div>` : ''}
+              ${customer.address ? `<div><strong>地址:</strong> ${customer.address}</div>` : ''}
+              <div class="mt-1"><strong>记录数:</strong> ${relatedRecords.length}</div>
+              
+              ${Object.keys(itemStats).length > 0 ? `
+                <div class="mt-2 pt-2 border-t border-gray-100">
+                  <strong>物品出入库详情:</strong>
+                  <div class="mt-1 space-y-1">
+                    ${itemStatsHTML}
+                  </div>
+                  <div class="mt-1 text-right"><strong>总入库:</strong> ${inCount} | <strong>总出库:</strong> ${outCount}</div>
+                </div>
+              ` : ''}
+            </div>
+            
+            ${customer.notes ? `
+              <div class="mt-3 pt-3 border-t border-gray-100 text-sm text-gray-600">
+                <strong>备注:</strong> ${customer.notes}
+              </div>
+            ` : ''}
+            
+            <div class="mt-3">
+              ${lastRecordDate ? `
+                <div class="text-xs text-gray-500 mb-2">最近: ${new Date(lastRecordDate).toLocaleDateString()}</div>
+              ` : ''}
+              <div class="flex space-x-2">
+                <button class="history-btn text-info hover:text-info/80 text-sm flex items-center" data-id="${customer.id}" data-name="${customer.name}">
+                  <i class="fa fa-history mr-1"></i> 查看历史
+                </button>
+                <button class="edit-btn text-primary hover:text-primary/80 text-sm flex items-center" data-id="${customer.id}">
+                  <i class="fa fa-edit mr-1"></i> 编辑
+                </button>
+                <button class="delete-btn text-danger hover:text-danger/80 text-sm flex items-center" data-id="${customer.id}">
+                  <i class="fa fa-trash mr-1"></i> 删除
+                </button>
+              </div>
+            </div>
+          `;
+          
+          container.appendChild(card);
+        });
+      },
+      
+      // 筛选客户
+      filterCustomers() {
+        const searchInput = document.getElementById('customer-search-input');
+        const searchTerm = searchInput.value.toLowerCase();
+        
+        // 获取所有客户
+        const allCustomers = DataManager.getCustomers();
+        const workRecords = DataManager.getWorkRecords();
+        
+        // 应用筛选条件
+        const filteredCustomers = allCustomers.filter(customer => {
+          // 搜索筛选
+          if (searchTerm) {
+            // 检查姓名
+            const matchesName = customer.name && customer.name.toLowerCase().includes(searchTerm);
+            
+            // 检查电话
+            const matchesPhone = customer.phone && customer.phone.toLowerCase().includes(searchTerm);
+            
+            // 检查地址
+            const matchesAddress = customer.address && customer.address.toLowerCase().includes(searchTerm);
+            
+            // 检查相关物品
+            let matchesItem = false;
+            const relatedRecords = workRecords.filter(record => {
+              if (record.type === 'inbound' || record.type === 'outbound' || record.type === 'packaging') {
+                return record.items.some(item => item.name === customer.name);
+              }
+              return false;
+            });
+            
+            for (const record of relatedRecords) {
+              for (const item of record.items) {
+                if (item.item && item.item.toLowerCase().includes(searchTerm)) {
+                  matchesItem = true;
+                  break;
+                }
+              }
+              if (matchesItem) break;
+            }
+            
+            if (!(matchesName || matchesPhone || matchesAddress || matchesItem)) {
+              return false;
+            }
+          }
+          
+          return true;
+        });
+        
+        // 重新渲染筛选后的客户
+        this.renderCustomers(filteredCustomers);
+      },
+      
+      // 渲染员工管理
+      renderEmployees(filteredEmployees = null) {
+        const employees = filteredEmployees || DataManager.getEmployees();
+        const workRecords = DataManager.getWorkRecords();
+        const container = document.getElementById('employees-container');
+        container.innerHTML = '';
+        
+        if (employees.length === 0) {
+          container.innerHTML = `
+            <div class="col-span-full py-12 text-center">
+              <i class="fa fa-user-friends text-gray-300 text-5xl mb-4"></i>
+              <p class="text-gray-500">暂无员工记录，点击"添加员工"按钮创建</p>
+            </div>
+          `;
+          return;
+        }
+        
+        employees.forEach(employee => {
+          // 查找相关记录
+          let relatedRecordsCount = 0;
+          let packagingCount = 0;
+          let packingCount = 0;
+          let loadingCount = 0;
+          let lastRecordDate = null;
+          
+          // 用于存储员工处理的物品数据
+          const itemStats = {};
+          // 用于存储打包和装卸货的时间
+          let packingDuration = 0;
+          let loadingDuration = 0;
+          
+          workRecords.forEach(record => {
+            let isRelated = false;
+            
+            if (record.type === 'packaging') {
+              if (record.items.some(item => item.name === employee.name)) {
+                relatedRecordsCount++;
+                packagingCount++;
+                isRelated = true;
+                
+                // 记录员工处理的物品
+                record.items.forEach(item => {
+                  if (item.name === employee.name) {
+                    if (!itemStats[item.item]) {
+                      itemStats[item.item] = 0;
+                    }
+                    itemStats[item.item] += parseInt(item.quantity) || 0;
+                  }
+                });
+              }
+            } else if (record.type === 'packing') {
+              if (record.participants.includes(employee.name)) {
+                relatedRecordsCount++;
+                packingCount++;
+                isRelated = true;
+                
+                // 计算打包时长
+                record.times.forEach(time => {
+                  const start = new Date(time.start);
+                  const end = new Date(time.end);
+                  packingDuration += (end - start) / (1000 * 60); // 转换为分钟
+                });
+              }
+            } else if (record.type === 'loading') {
+              if (record.participants.includes(employee.name)) {
+                relatedRecordsCount++;
+                loadingCount++;
+                isRelated = true;
+                
+                // 计算装卸货时间
+                record.times.forEach(time => {
+                  const start = new Date(time.start);
+                  const end = new Date(time.end);
+                  loadingDuration += (end - start) / (1000 * 60); // 转换为分钟
+                });
+              }
+            }
+            
+            if (isRelated && (!lastRecordDate || new Date(record.date) > new Date(lastRecordDate))) {
+              lastRecordDate = record.date;
+            }
+          });
+          
+          // 生成物品数据的HTML
+          let itemStatsHTML = '';
+          for (const [itemName, quantity] of Object.entries(itemStats)) {
+            itemStatsHTML += `
+              <div class="flex justify-between text-sm">
+                <span class="text-primary hover:text-primary/80 cursor-pointer item-link" data-item="${itemName}" data-name="${employee.name}">${itemName}</span>
+                <span>${quantity}</span>
+              </div>`;
+          }
+          
+          // 格式化时间显示
+          const formatDuration = (minutes) => {
+            if (minutes < 60) {
+              return `${Math.round(minutes)}分钟`;
+            } else {
+              const hours = Math.floor(minutes / 60);
+              const remainingMinutes = Math.round(minutes % 60);
+              return `${hours}小时${remainingMinutes}分钟`;
+            }
+          };
+          
+          const card = document.createElement('div');
+          card.className = 'bg-white rounded-xl p-5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100';
+          card.innerHTML = `
+            <div class="flex justify-between items-start">
+              <h4 class="font-bold text-lg">${employee.name}</h4>
+            </div>
+            
+            <div class="mt-2 text-sm text-gray-600">
+              ${employee.phone ? `<div><strong>电话:</strong> ${employee.phone}</div>` : ''}
+              <div class="mt-1"><strong>总记录数:</strong> ${relatedRecordsCount}</div>
+              <div class="mt-1">
+                <strong>工作类型:</strong> 
+                <span class="text-primary hover:text-primary/80 cursor-pointer work-type-link" data-type="packaging" data-name="${employee.name}">包装(${packagingCount})</span> | <span class="text-primary hover:text-primary/80 cursor-pointer work-type-link" data-type="packing" data-name="${employee.name}">打包(${packingCount})</span> | <span class="text-primary hover:text-primary/80 cursor-pointer work-type-link" data-type="loading" data-name="${employee.name}">装卸货(${loadingCount})</span>
+              </div>
+              
+              ${Object.keys(itemStats).length > 0 ? `
+                <div class="mt-2 pt-2 border-t border-gray-100">
+                  <strong>处理物品:</strong>
+                  <div class="mt-1 space-y-1">
+                    ${itemStatsHTML}
+                  </div>
+                  <div class="mt-1 text-sm text-right"><strong>总数:</strong> ${Object.values(itemStats).reduce((a, b) => a + b, 0)}</div>
+                </div>
+              ` : ''}
+              
+              <div class="mt-2 pt-2 border-t border-gray-100">
+                <strong>工作时长:</strong>
+                <div class="mt-1 space-y-1">
+                  <div class="flex justify-start text-sm">
+                    <span>打包:</span>
+                    <span class="ml-2">${formatDuration(packingDuration)}</span>
+                  </div>
+                  <div class="flex justify-start text-sm">
+                    <span>装卸:</span>
+                    <span class="ml-2">${formatDuration(loadingDuration)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            ${employee.notes ? `
+              <div class="mt-3 pt-3 border-t border-gray-100 text-sm text-gray-600">
+                <strong>备注:</strong> ${employee.notes}
+              </div>
+            ` : ''}
+            
+            <div class="mt-3 pt-3 border-t border-gray-100">
+              ${lastRecordDate ? `
+                <span class="text-xs text-gray-500">最近: ${new Date(lastRecordDate).toLocaleDateString()}</span>
+              ` : ''}
+              <div class="mt-2 flex space-x-2">
+                <button class="history-btn text-info hover:text-info/80 text-sm flex items-center" data-id="${employee.id}" data-name="${employee.name}">
+                  <i class="fa fa-history mr-1"></i> 查看历史
+                </button>
+                <button class="edit-btn text-primary hover:text-primary/80 text-sm flex items-center" data-id="${employee.id}">
+                  <i class="fa fa-edit mr-1"></i> 编辑
+                </button>
+                <button class="delete-btn text-danger hover:text-danger/80 text-sm flex items-center" data-id="${employee.id}">
+                  <i class="fa fa-trash mr-1"></i> 删除
+                </button>
+              </div>
+            </div>
+          `;
+          
+          container.appendChild(card);
+        });
+      },
+      
+      // 设置默认日期为今天
+      setDefaultDate() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('record-date').value = today;
+      },
+      
+      // 设置上次选择的记录类型
+      setLastRecordType() {
+        const lastType = DataManager.getLastRecordType();
+        this.selectRecordType(lastType);
+      },
+      
+      // 选择记录类型
+      selectRecordType(type) {
+        // 定义类型颜色映射
+        const typeColors = {
+          'outbound': 'bg-danger',
+          'inbound': 'bg-secondary',
+          'packaging': 'bg-warning',
+          'packing': 'bg-info',
+          'loading': 'bg-primary'
+        };
+        
+        // 移除所有选中状态
+        document.querySelectorAll('.record-type-btn').forEach(btn => {
+          // 移除所有可能的颜色类
+          btn.classList.remove(
+            'bg-primary', 'bg-secondary', 'bg-danger', 'bg-warning', 'bg-info',
+            'text-white', 'border-primary', 'border-secondary', 'border-danger', 
+            'border-warning', 'border-info', 'shadow-sm'
+          );
+          btn.classList.add('bg-white', 'text-gray-700', 'border-gray-300');
+        });
+        
+        // 设置当前选中状态
+        const selectedBtn = document.querySelector(`.record-type-btn[data-type="${type}"]`);
+        if (selectedBtn) {
+          selectedBtn.classList.remove('bg-white', 'text-gray-700', 'border-gray-300');
+          
+          // 添加选中状态的颜色
+          const colorClass = typeColors[type] || 'bg-primary';
+          selectedBtn.classList.add(colorClass, 'text-white', `border-${colorClass.split('-')[1]}`, 'shadow-sm', 'border-2');
+        }
+        
+        // 为未选中的按钮添加对应类型的浅色背景
+        document.querySelectorAll('.record-type-btn').forEach(btn => {
+          if (btn.dataset.type !== type) {
+            const colorClass = typeColors[btn.dataset.type] || 'bg-primary';
+            const lightColorClass = `${colorClass}/10`;
+            btn.classList.add(lightColorClass);
+          }
+        });
+        
+        // 显示对应的表单，添加过渡动画
+        if (['outbound', 'inbound', 'packaging'].includes(type)) {
+          document.getElementById('standard-form').classList.remove('hidden');
+          document.getElementById('time-form').classList.add('hidden');
+          
+          // 添加淡入动画
+          setTimeout(() => {
+            document.getElementById('standard-form').classList.add('animate-fadeIn');
+          }, 50);
+        } else {
+          document.getElementById('standard-form').classList.add('hidden');
+          document.getElementById('time-form').classList.remove('hidden');
+          
+          // 设置默认时间
+          this.setDefaultTime();
+          
+          // 添加淡入动画
+          setTimeout(() => {
+            document.getElementById('time-form').classList.add('animate-fadeIn');
+          }, 50);
+        }
+      },
+      
+      // 设置默认时间（当天）
+      setDefaultTime() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        
+        // 只设置日期，默认时间为00:00
+        const defaultValue = `${year}-${month}-${day}T00:00`;
+        
+        // 获取所有时间输入框
+        const startTimeInputs = document.querySelectorAll('.start-time-input');
+        const endTimeInputs = document.querySelectorAll('.end-time-input');
+        
+        // 为每个空的时间输入框设置默认值
+        startTimeInputs.forEach(input => {
+          if (!input.value) {
+            input.value = defaultValue;
+          }
+        });
+        
+        endTimeInputs.forEach(input => {
+          if (!input.value) {
+            input.value = defaultValue;
+          }
+        });
+      },
+      
+      // 添加物品行
+      addItemRow() {
+        const container = document.getElementById('items-container-form');
+        const newRow = document.createElement('div');
+        newRow.className = 'item-row grid grid-cols-12 gap-2 opacity-0 transform translate-y-2 transition-all duration-300';
+        newRow.innerHTML = `
+          <input type="text" placeholder="姓名" class="name-input col-span-4 px-3 py-2 border border-gray-300 rounded-md input-focus" required>
+          <input type="text" placeholder="物品" class="item-input col-span-5 px-3 py-2 border border-gray-300 rounded-md input-focus">
+          <input type="number" placeholder="数量" class="quantity-input col-span-2 px-3 py-2 border border-gray-300 rounded-md input-focus">
+          <button type="button" class="remove-item-btn text-gray-500 hover:text-danger self-center px-2 p-1 rounded-full hover:bg-gray-100 transition-colors">
+            <i class="fa fa-trash"></i>
+          </button>
+        `;
+        container.appendChild(newRow);
+        
+        // 触发动画
+        setTimeout(() => {
+          newRow.classList.remove('opacity-0', 'translate-y-2');
+        }, 50);
+        
+        // 添加删除事件
+        newRow.querySelector('.remove-item-btn').addEventListener('click', function() {
+          newRow.classList.add('opacity-0', 'translate-y-2');
+          setTimeout(() => {
+            newRow.remove();
+          }, 300);
+        });
+      },
+      
+      // 添加时间段行
+      addTimeRow() {
+        const container = document.getElementById('times-container-form');
+        const newRow = document.createElement('div');
+        newRow.className = 'time-row grid grid-cols-12 gap-2 opacity-0 transform translate-y-2 transition-all duration-300';
+        newRow.innerHTML = `
+          <input type="datetime-local" class="start-time-input col-span-5 px-3 py-2 border border-gray-300 rounded-md input-focus">
+          <div class="col-span-2 flex items-center justify-center text-gray-500">至</div>
+          <input type="datetime-local" class="end-time-input col-span-5 px-3 py-2 border border-gray-300 rounded-md input-focus">
+          <button type="button" class="remove-time-btn text-gray-500 hover:text-danger self-center px-2 p-1 rounded-full hover:bg-gray-100 transition-colors">
+            <i class="fa fa-trash"></i>
+          </button>
+        `;
+        container.appendChild(newRow);
+        
+        // 触发动画
+        setTimeout(() => {
+          newRow.classList.remove('opacity-0', 'translate-y-2');
+        }, 50);
+        
+        // 添加删除事件
+        newRow.querySelector('.remove-time-btn').addEventListener('click', function() {
+          newRow.classList.add('opacity-0', 'translate-y-2');
+          setTimeout(() => {
+            newRow.remove();
+          }, 300);
+        });
+      },
+      
+      // 显示弹窗
+      showModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.remove('hidden');
+        
+        // 触发动画
+        setTimeout(() => {
+          modal.style.opacity = '1';
+          const modalContent = modal.querySelector('div[class*="rounded-xl"]');
+          modalContent.style.transform = 'scale(1)';
+        }, 50);
+        
+        // 如果是工作记录模态框，设置默认时间
+        if (modalId === 'work-record-modal') {
+          this.setDefaultTime();
+        }
+        
+        // 阻止背景滚动
+        document.body.style.overflow = 'hidden';
+      },
+      
+      // 隐藏所有弹窗
+      hideAllModals() {
+        document.querySelectorAll('[id$="-modal"]').forEach(modal => {
+          modal.style.opacity = '0';
+          const modalContent = modal.querySelector('div[class*="rounded-xl"]');
+          modalContent.style.transform = 'scale(0.95)';
+          
+          setTimeout(() => {
+            modal.classList.add('hidden');
+          }, 300);
+        });
+        
+        // 恢复背景滚动
+        document.body.style.overflow = '';
+      },
+      
+      // 切换标签页
+      switchTab(tabId) {
+        // 更新导航按钮状态
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+          btn.classList.remove('active', 'bg-primary/10', 'text-primary');
+          btn.classList.add('text-gray-700');
+        });
+        
+        const activeBtn = document.querySelector(`.nav-btn[data-tab="${tabId}"]`);
+        if (activeBtn) {
+          activeBtn.classList.add('active', 'bg-primary/10', 'text-primary');
+          activeBtn.classList.remove('text-gray-700');
+        }
+        
+        // 更新内容区域，添加过渡动画
+        document.querySelectorAll('.tab-content').forEach(content => {
+          if (content.id === tabId) {
+            content.classList.remove('hidden', 'opacity-0');
+            content.classList.add('active');
+          } else {
+            content.classList.add('hidden');
+            content.classList.remove('active');
+          }
+        });
+      },
+      
+      // 设置事件监听器
+      setupEventListeners() {
+        const self = this; // 保存UIManager的引用
+        
+        // 导航标签切换
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            self.switchTab(btn.dataset.tab);
+            // 关闭移动菜单
+            document.getElementById('mobile-menu').classList.add('hidden');
+          });
+        });
+        
+        // 移动菜单切换
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+          document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+        
+        // 记录类型选择
+        document.querySelectorAll('.record-type-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            self.selectRecordType(btn.dataset.type);
+          });
+        });
+        
+        // 添加物品行
+        document.getElementById('add-item-row').addEventListener('click', () => {
+          self.addItemRow();
+        });
+        
+        // 添加时间段行
+        document.getElementById('add-time-row').addEventListener('click', () => {
+          self.addTimeRow();
+        });
+        
+        // 初始物品行删除事件
+        document.querySelector('.remove-item-btn').addEventListener('click', function() {
+          if (document.querySelectorAll('.item-row').length > 1) {
+            const row = this.closest('.item-row');
+            row.classList.add('opacity-0', 'translate-y-2');
+            setTimeout(() => {
+              row.remove();
+            }, 200);
+          }
+        });
+        
+        // 初始时间段行删除事件
+        document.querySelector('.remove-time-btn').addEventListener('click', function() {
+          if (document.querySelectorAll('.time-row').length > 1) {
+            const row = this.closest('.time-row');
+            row.classList.add('opacity-0', 'translate-y-2');
+            setTimeout(() => {
+              row.remove();
+            }, 200);
+          }
+        });
+        
+        // 导出按钮事件监听器
+        document.getElementById('export-btn').addEventListener('click', exportData);
+        document.getElementById('export-btn-mobile').addEventListener('click', exportData);
+        
+        // 导入按钮事件监听器
+        const importFileInput = document.createElement('input');
+        importFileInput.type = 'file';
+        importFileInput.accept = '.json';
+        importFileInput.style.display = 'none';
+        importFileInput.addEventListener('change', importData);
+        document.body.appendChild(importFileInput);
+        
+        document.getElementById('import-btn').addEventListener('click', () => {
+          importFileInput.click();
+        });
+        
+        document.getElementById('import-btn-mobile').addEventListener('click', () => {
+          importFileInput.click();
+        });
+        
+        // 打开工作记录弹窗
+        document.getElementById('add-work-record-btn').addEventListener('click', () => {
+          self.showModal('work-record-modal');
+          
+          // 隐藏编辑警告文本
+          document.getElementById('edit-warning').classList.add('hidden');
+        });
+        
+        // 打开物品弹窗
+        document.getElementById('add-item-btn').addEventListener('click', () => {
+          self.showModal('item-modal');
+        });
+        
+        // 打开客户弹窗
+        document.getElementById('add-customer-btn').addEventListener('click', () => {
+          self.showModal('customer-modal');
+        });
+        
+        // 打开员工弹窗
+        document.getElementById('add-employee-btn').addEventListener('click', () => {
+          self.showModal('employee-modal');
+        });
+        
+        // 员工搜索事件
+        document.getElementById('employee-search').addEventListener('input', () => {
+          self.filterEmployees();
+        });
+
+        // 重置员工搜索
+        document.getElementById('reset-employee-search').addEventListener('click', () => {
+          document.getElementById('employee-search').value = '';
+          self.filterEmployees();
+        });
+        
+        // 关闭弹窗按钮
+        document.querySelectorAll('.close-modal').forEach(btn => {
+          btn.addEventListener('click', () => {
+            self.hideAllModals();
+          });
+        });
+        
+        // 点击弹窗背景关闭
+        document.querySelectorAll('[id$="-modal"]').forEach(modal => {
+          modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+              self.hideAllModals();
+            }
+          });
+        });
+        
+        // 保存工作记录
+        const saveWorkRecordBtn = document.getElementById('save-work-record');
+        saveWorkRecordBtn.addEventListener('click', function() {
+          const selectedType = document.querySelector('.record-type-btn.bg-primary, .record-type-btn.bg-secondary, .record-type-btn.bg-danger, .record-type-btn.bg-warning, .record-type-btn.bg-info').dataset.type;
+          const date = document.getElementById('record-date').value;
+          const notes = document.getElementById('record-notes').value;
+          
+          // 验证必填项
+          if (!date) {
+            alert('请选择日期');
+            return;
+          }
+          
+          let recordData = {
+            type: selectedType,
+            date: date,
+            notes: notes
+          };
+          
+          if (['outbound', 'inbound', 'packaging'].includes(selectedType)) {
+            const items = [];
+            let hasValidItem = false;
+            
+            document.querySelectorAll('.item-row').forEach((row, index) => {
+              const name = row.querySelector('.name-input').value.trim();
+              const item = row.querySelector('.item-input').value.trim();
+              const quantity = row.querySelector('.quantity-input').value.trim();
+              
+              // 如果姓名不为空，则认为是有效行
+              if (name) {
+                hasValidItem = true;
+                items.push({ name, item, quantity });
+              }
+              // 如果物品或数量不为空但姓名为空，提示用户
+              else if (item || quantity) {
+                alert(`第${index + 1}行物品信息不完整，请填写姓名`);
+                return;
+              }
+            });
+            
+            if (!hasValidItem) {
+              alert('请至少填写一行有效的物品信息，姓名为必填项');
+              return;
+            }
+            
+            recordData.items = items;
+          } else {
+            const times = [];
+            let hasValidTime = false;
+            
+            document.querySelectorAll('.time-row').forEach((row, index) => {
+              const start = row.querySelector('.start-time-input').value;
+              const end = row.querySelector('.end-time-input').value;
+              
+              // 如果开始和结束时间都不为空，则认为是有效行
+              if (start && end) {
+                // 验证时间逻辑
+                if (new Date(start) >= new Date(end)) {
+                  alert(`第${index + 1}行时间段不正确，开始时间必须早于结束时间`);
+                  return;
+                }
+                hasValidTime = true;
+                times.push({ start, end });
+              }
+              // 如果开始或结束时间有一个不为空但另一个为空，提示用户
+              else if (start || end) {
+                alert(`第${index + 1}行时间段不完整，请填写完整的开始和结束时间`);
+                return;
+              }
+            });
+            
+            let participants = document.getElementById('participants-input').value.trim();
+            
+            if (!participants) {
+              alert('请输入参与人员');
+              return;
+            }
+            
+            // 支持多种分隔符：逗号、顿号、减号和空格
+            participants = participants.replace(/[、，\-\s]+/g, ',');
+            
+            if (!hasValidTime) {
+              alert('请至少填写一个有效的时间段');
+              return;
+            }
+            
+            recordData.times = times;
+            recordData.participants = participants;
+          }
+          
+          // 保存记录
+          DataManager.addWorkRecord(recordData);
+          DataManager.setLastRecordType(selectedType);
+          
+          // 刷新UI
+          self.renderWorkRecords();
+          self.renderItems();
+          self.renderCustomers();
+          self.renderEmployees();
+          
+          // 关闭弹窗并重置表单
+          self.hideAllModals();
+          document.getElementById('record-notes').value = '';
+          document.getElementById('participants-input').value = '';
+        });
+        
+        // 为保存工作记录按钮绑定回车键
+        document.getElementById('work-record-modal').addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') {
+            saveWorkRecordBtn.click();
+          }
+        });
+        
+        // 保存物品
+        const saveItemBtn = document.getElementById('save-item');
+        saveItemBtn.addEventListener('click', function() {
+          const name = document.getElementById('item-name').value.trim();
+          const category = document.getElementById('item-category').value.trim();
+          const notes = document.getElementById('item-notes').value.trim();
+          
+          if (!name) {
+            alert('请输入物品名称');
+            return;
+          }
+          
+          DataManager.addItem({ name, category, notes });
+          self.renderItems();
+          self.hideAllModals();
+          
+          // 重置表单
+          document.getElementById('item-name').value = '';
+          document.getElementById('item-category').value = '';
+          document.getElementById('item-notes').value = '';
+        });
+        
+        // 为保存物品按钮绑定回车键
+        document.getElementById('item-modal').addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') {
+            saveItemBtn.click();
+          }
+        });
+        
+        // 保存客户
+        const saveCustomerBtn = document.getElementById('save-customer');
+        saveCustomerBtn.addEventListener('click', function() {
+          const name = document.getElementById('customer-name').value.trim();
+          const phone = document.getElementById('customer-phone').value.trim();
+          const address = document.getElementById('customer-address').value.trim();
+          const notes = document.getElementById('customer-notes').value.trim();
+          
+          if (!name) {
+            alert('请输入客户姓名');
+            return;
+          }
+          
+          DataManager.addCustomer({ name, phone, address, notes });
+          self.renderCustomers();
+          self.hideAllModals();
+          
+          // 重置表单
+          document.getElementById('customer-name').value = '';
+          document.getElementById('customer-phone').value = '';
+          document.getElementById('customer-notes').value = '';
+        });
+        
+        // 为保存客户按钮绑定回车键
+        document.getElementById('customer-modal').addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') {
+            saveCustomerBtn.click();
+          }
+        });
+        
+        // 保存员工
+        const saveEmployeeBtn = document.getElementById('save-employee');
+        saveEmployeeBtn.addEventListener('click', function() {
+          const name = document.getElementById('employee-name').value.trim();
+          const phone = document.getElementById('employee-phone').value.trim();
+          const notes = document.getElementById('employee-notes').value.trim();
+          
+          if (!name) {
+            alert('请输入员工姓名');
+            return;
+          }
+          
+          DataManager.addEmployee({ name, phone, notes });
+          self.renderEmployees();
+          self.hideAllModals();
+          
+          // 重置表单
+          document.getElementById('employee-name').value = '';
+          document.getElementById('employee-phone').value = '';
+          document.getElementById('employee-notes').value = '';
+        });
+        
+        // 为保存员工按钮绑定回车键
+        document.getElementById('employee-modal').addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') {
+            saveEmployeeBtn.click();
+          }
+        });
+        
+        // 编辑和删除功能
+        document.addEventListener('click', (e) => {
+          // 查看历史按钮
+          if (e.target.closest('.history-btn')) {
+            const id = e.target.closest('.history-btn').dataset.id;
+            const name = e.target.closest('.history-btn').dataset.name;
+            
+            // 切换到工作记录标签页
+            self.switchTab('work-records');
+            
+            // 设置搜索框为客户或员工的姓名
+            document.getElementById('search-input').value = name;
+            
+            // 触发筛选
+            self.filterRecords();
+            
+            return;
+          }
+          
+          // 编辑按钮
+          if (e.target.closest('.edit-btn')) {
+            const id = e.target.closest('.edit-btn').dataset.id;
+            
+            // 查找对应的记录
+            let record = DataManager.getWorkRecords().find(r => r.id === id);
+            if (record) {
+              // 填充工作记录表单
+              document.getElementById('record-date').value = record.date;
+              self.selectRecordType(record.type);
+              document.getElementById('record-notes').value = record.notes || '';
+              
+              if (['outbound', 'inbound', 'packaging'].includes(record.type)) {
+                // 填充物品信息
+                const itemsContainer = document.getElementById('items-container-form');
+                itemsContainer.innerHTML = '';
+                record.items.forEach(item => {
+                  self.addItemRow();
+                  const lastRow = itemsContainer.lastElementChild;
+                  lastRow.querySelector('.name-input').value = item.name;
+                  lastRow.querySelector('.item-input').value = item.item || '';
+                  lastRow.querySelector('.quantity-input').value = item.quantity || '';
+                });
+              } else {
+                // 填充时间信息
+                const timesContainer = document.getElementById('times-container-form');
+                timesContainer.innerHTML = '';
+                record.times.forEach(time => {
+                  self.addTimeRow();
+                  const lastRow = timesContainer.lastElementChild;
+                  lastRow.querySelector('.start-time-input').value = time.start;
+                  lastRow.querySelector('.end-time-input').value = time.end;
+                });
+                
+                // 填充参与人员
+                document.getElementById('participants-input').value = record.participants || '';
+              }
+              
+              // 显示弹窗
+              self.showModal('work-record-modal');
+              
+              // 显示编辑警告文本
+              document.getElementById('edit-warning').classList.remove('hidden');
+              
+              // 修改保存按钮行为
+              const saveBtn = document.getElementById('save-work-record');
+              // 移除所有现有的事件监听器
+              const newSaveBtn = saveBtn.cloneNode(true);
+              saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
+              
+              newSaveBtn.addEventListener('click', function() {
+                // 更新记录
+                record.date = document.getElementById('record-date').value;
+                record.notes = document.getElementById('record-notes').value;
+                // 更新记录类型
+                record.type = document.querySelector('.record-type-btn.bg-primary, .record-type-btn.bg-secondary, .record-type-btn.bg-danger, .record-type-btn.bg-warning, .record-type-btn.bg-info').dataset.type;
+                
+                if (['outbound', 'inbound', 'packaging'].includes(record.type)) {
+                  // 更新物品信息
+                  const items = [];
+                  let hasValidItem = false;
+                  
+                  document.querySelectorAll('.item-row').forEach((row, index) => {
+                    const name = row.querySelector('.name-input').value.trim();
+                    const item = row.querySelector('.item-input').value.trim();
+                    const quantity = row.querySelector('.quantity-input').value.trim();
+                    
+                    // 如果姓名不为空，则认为是有效行
+                    if (name) {
+                      hasValidItem = true;
+                      items.push({ name, item, quantity });
+                    }
+                    // 如果物品或数量不为空但姓名为空，提示用户
+                    else if (item || quantity) {
+                      alert(`第${index + 1}行物品信息不完整，请填写姓名`);
+                      return;
+                    }
+                  });
+                  
+                  if (!hasValidItem) {
+                    alert('请至少填写一行有效的物品信息，姓名为必填项');
+                    return;
+                  }
+                  
+                  record.items = items;
+                } else {
+                  // 更新时间信息
+                  const times = [];
+                  let hasValidTime = false;
+                  
+                  document.querySelectorAll('.time-row').forEach((row, index) => {
+                    const start = row.querySelector('.start-time-input').value;
+                    const end = row.querySelector('.end-time-input').value;
+                    
+                    // 如果开始和结束时间都不为空，则认为是有效行
+                    if (start && end) {
+                      // 验证时间逻辑
+                      if (new Date(start) >= new Date(end)) {
+                        alert(`第${index + 1}行时间段不正确，开始时间必须早于结束时间`);
+                        return;
+                      }
+                      hasValidTime = true;
+                      times.push({ start, end });
+                    }
+                    // 如果开始或结束时间有一个不为空但另一个为空，提示用户
+                    else if (start || end) {
+                      alert(`第${index + 1}行时间段不完整，请填写完整的开始和结束时间`);
+                      return;
+                    }
+                  });
+                  
+                  const participants = document.getElementById('participants-input').value.trim();
+                  
+                  if (!participants) {
+                    alert('请输入参与人员');
+                    return;
+                  }
+                  
+                  if (!hasValidTime) {
+                    alert('请至少填写一个有效的时间段');
+                    return;
+                  }
+                  
+                  record.times = times;
+                  record.participants = participants;
+                }
+                
+                // 保存到数据管理器
+                DataManager.updateWorkRecord(record);
+                
+                // 刷新UI
+                self.renderWorkRecords();
+                self.renderItems();
+                self.renderCustomers();
+                self.renderEmployees();
+                
+                // 关闭弹窗并重置表单
+                self.hideAllModals();
+                document.getElementById('record-notes').value = '';
+                document.getElementById('participants-input').value = '';
+                
+                // 重新绑定原始保存按钮行为
+                const resetSaveBtn = newSaveBtn.cloneNode(true);
+                newSaveBtn.parentNode.replaceChild(resetSaveBtn, newSaveBtn);
+                resetSaveBtn.addEventListener('click', function() {
+                  const selectedType = document.querySelector('.record-type-btn.bg-primary, .record-type-btn.bg-secondary, .record-type-btn.bg-danger, .record-type-btn.bg-warning, .record-type-btn.bg-info').dataset.type;
+                  const date = document.getElementById('record-date').value;
+                  const notes = document.getElementById('record-notes').value;
+                  
+                  // 验证必填项
+                  if (!date) {
+                    alert('请选择日期');
+                    return;
+                  }
+                  
+                  let recordData = {
+                    type: selectedType,
+                    date: date,
+                    notes: notes
+                  };
+                  
+                  if (['outbound', 'inbound', 'packaging'].includes(selectedType)) {
+                    const items = [];
+                    let hasValidItem = false;
+                    
+                    document.querySelectorAll('.item-row').forEach((row, index) => {
+                      const name = row.querySelector('.name-input').value.trim();
+                      const item = row.querySelector('.item-input').value.trim();
+                      const quantity = row.querySelector('.quantity-input').value.trim();
+                      
+                      // 如果姓名不为空，则认为是有效行
+                      if (name) {
+                        hasValidItem = true;
+                        items.push({ name, item, quantity });
+                      }
+                      // 如果物品或数量不为空但姓名为空，提示用户
+                      else if (item || quantity) {
+                        alert(`第${index + 1}行物品信息不完整，请填写姓名`);
+                        return;
+                      }
+                    });
+                    
+                    if (!hasValidItem) {
+                      alert('请至少填写一行有效的物品信息，姓名为必填项');
+                      return;
+                    }
+                    
+                    recordData.items = items;
+                  } else {
+                    const times = [];
+                    let hasValidTime = false;
+                    
+                    document.querySelectorAll('.time-row').forEach((row, index) => {
+                      const start = row.querySelector('.start-time-input').value;
+                      const end = row.querySelector('.end-time-input').value;
+                      
+                      // 如果开始和结束时间都不为空，则认为是有效行
+                      if (start && end) {
+                        // 验证时间逻辑
+                        if (new Date(start) >= new Date(end)) {
+                          alert(`第${index + 1}行时间段不正确，开始时间必须早于结束时间`);
+                          return;
+                        }
+                        hasValidTime = true;
+                        times.push({ start, end });
+                      }
+                      // 如果开始或结束时间有一个不为空但另一个为空，提示用户
+                      else if (start || end) {
+                        alert(`第${index + 1}行时间段不完整，请填写完整的开始和结束时间`);
+                        return;
+                      }
+                    });
+                    
+                    const participants = document.getElementById('participants-input').value.trim();
+                    
+                    if (!participants) {
+                      alert('请输入参与人员');
+                      return;
+                    }
+                    
+                    if (!hasValidTime) {
+                      alert('请至少填写一个有效的时间段');
+                      return;
+                    }
+                    
+                    recordData.times = times;
+                    recordData.participants = participants;
+                  }
+                  
+                  // 保存记录
+                  DataManager.addWorkRecord(recordData);
+                  DataManager.setLastRecordType(selectedType);
+                  
+                  // 刷新UI
+                  self.renderWorkRecords();
+                  self.renderItems();
+                  self.renderCustomers();
+                  self.renderEmployees();
+                  
+                  // 关闭弹窗并重置表单
+                  self.hideAllModals();
+                  document.getElementById('record-notes').value = '';
+                  document.getElementById('participants-input').value = '';
+                });
+              });
+              return;
+            }
+            
+            // 查找对应的物品
+            let item = DataManager.getItems().find(i => i.id === id);
+            if (item) {
+              // 填充物品表单
+              document.getElementById('item-name').value = item.name;
+              document.getElementById('item-category').value = item.category || '';
+              document.getElementById('item-notes').value = item.notes || '';
+              
+              // 显示弹窗
+              self.showModal('item-modal');
+              
+              // 修改保存按钮行为
+              const saveBtn = document.getElementById('save-item');
+              // 移除所有现有的事件监听器
+              const newSaveBtn = saveBtn.cloneNode(true);
+              saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
+              
+              newSaveBtn.addEventListener('click', function() {
+                // 更新物品
+                item.name = document.getElementById('item-name').value.trim();
+                item.category = document.getElementById('item-category').value.trim();
+                item.notes = document.getElementById('item-notes').value.trim();
+                
+                // 保存到数据管理器
+                DataManager.updateItem(item);
+                
+                // 刷新UI
+                self.renderItems();
+                
+                // 关闭弹窗并重置表单
+                self.hideAllModals();
+                document.getElementById('item-name').value = '';
+                document.getElementById('item-category').value = '';
+                document.getElementById('item-notes').value = '';
+                
+                // 重新绑定原始保存按钮行为
+                const resetSaveBtn = newSaveBtn.cloneNode(true);
+                newSaveBtn.parentNode.replaceChild(resetSaveBtn, newSaveBtn);
+                resetSaveBtn.addEventListener('click', function() {
+                  const name = document.getElementById('item-name').value.trim();
+                  const category = document.getElementById('item-category').value.trim();
+                  const notes = document.getElementById('item-notes').value.trim();
+                  
+                  if (!name) {
+                    alert('请输入物品名称');
+                    return;
+                  }
+                  
+                  DataManager.addItem({ name, category, notes });
+                  self.renderItems();
+                  self.hideAllModals();
+                  
+                  // 重置表单
+                  document.getElementById('item-name').value = '';
+                  document.getElementById('item-category').value = '';
+                  document.getElementById('item-notes').value = '';
+                });
+              });
+              return;
+            }
+            
+            // 查找对应的客户
+            let customer = DataManager.getCustomers().find(c => c.id === id);
+            if (customer) {
+              // 填充客户表单
+              document.getElementById('customer-name').value = customer.name;
+              document.getElementById('customer-phone').value = customer.phone || '';
+              document.getElementById('customer-address').value = customer.address || '';
+              document.getElementById('customer-notes').value = customer.notes || '';
+              
+              // 显示弹窗
+              self.showModal('customer-modal');
+              
+              // 修改保存按钮行为
+              const saveBtn = document.getElementById('save-customer');
+              // 移除所有现有的事件监听器
+              const newSaveBtn = saveBtn.cloneNode(true);
+              saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
+              
+              newSaveBtn.addEventListener('click', function() {
+                // 更新客户
+                customer.name = document.getElementById('customer-name').value.trim();
+                customer.phone = document.getElementById('customer-phone').value.trim();
+                customer.address = document.getElementById('customer-address').value.trim();
+                customer.notes = document.getElementById('customer-notes').value.trim();
+                
+                // 保存到数据管理器
+                DataManager.updateCustomer(customer);
+                
+                // 刷新UI
+                self.renderCustomers();
+                
+                // 关闭弹窗并重置表单
+                self.hideAllModals();
+                document.getElementById('customer-name').value = '';
+                document.getElementById('customer-phone').value = '';
+                document.getElementById('customer-notes').value = '';
+                
+                // 重新绑定原始保存按钮行为
+                const resetSaveBtn = newSaveBtn.cloneNode(true);
+                newSaveBtn.parentNode.replaceChild(resetSaveBtn, newSaveBtn);
+                resetSaveBtn.addEventListener('click', function() {
+                  const name = document.getElementById('customer-name').value.trim();
+                  const phone = document.getElementById('customer-phone').value.trim();
+                  const notes = document.getElementById('customer-notes').value.trim();
+                  
+                  if (!name) {
+                    alert('请输入客户姓名');
+                    return;
+                  }
+                  
+                  DataManager.addCustomer({ name, phone, notes });
+                  self.renderCustomers();
+                  self.hideAllModals();
+                  
+                  // 重置表单
+                  document.getElementById('customer-name').value = '';
+                  document.getElementById('customer-phone').value = '';
+                  document.getElementById('customer-notes').value = '';
+                });
+              });
+              return;
+            }
+            
+            // 查找对应的员工
+            let employee = DataManager.getEmployees().find(e => e.id === id);
+            if (employee) {
+              // 填充员工表单
+              document.getElementById('employee-name').value = employee.name;
+              document.getElementById('employee-phone').value = employee.phone || '';
+              document.getElementById('employee-notes').value = employee.notes || '';
+              
+              // 显示弹窗
+              self.showModal('employee-modal');
+              
+              // 修改保存按钮行为
+              const saveBtn = document.getElementById('save-employee');
+              // 移除所有现有的事件监听器
+              const newSaveBtn = saveBtn.cloneNode(true);
+              saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
+              
+              newSaveBtn.addEventListener('click', function() {
+                // 更新员工
+                employee.name = document.getElementById('employee-name').value.trim();
+                employee.phone = document.getElementById('employee-phone').value.trim();
+                employee.notes = document.getElementById('employee-notes').value.trim();
+                
+                // 保存到数据管理器
+                DataManager.updateEmployee(employee);
+                
+                // 刷新UI
+                self.renderEmployees();
+                
+                // 关闭弹窗并重置表单
+                self.hideAllModals();
+                document.getElementById('employee-name').value = '';
+                document.getElementById('employee-phone').value = '';
+                document.getElementById('employee-notes').value = '';
+                
+                // 重新绑定原始保存按钮行为
+                const resetSaveBtn = newSaveBtn.cloneNode(true);
+                newSaveBtn.parentNode.replaceChild(resetSaveBtn, newSaveBtn);
+                resetSaveBtn.addEventListener('click', function() {
+                  const name = document.getElementById('employee-name').value.trim();
+                  const phone = document.getElementById('employee-phone').value.trim();
+                  const notes = document.getElementById('employee-notes').value.trim();
+                  
+                  if (!name) {
+                    alert('请输入员工姓名');
+                    return;
+                  }
+                  
+                  DataManager.addEmployee({ name, phone, notes });
+                  self.renderEmployees();
+                  self.hideAllModals();
+                  
+                  // 重置表单
+                  document.getElementById('employee-name').value = '';
+                  document.getElementById('employee-phone').value = '';
+                  document.getElementById('employee-notes').value = '';
+                });
+              });
+            }
+          }
+          
+          // 删除按钮
+        if (e.target.closest('.delete-btn')) {
+          const id = e.target.closest('.delete-btn').dataset.id;
+          
+          if (confirm('确定要删除这条记录吗？')) {
+            // 删除工作记录
+            if (DataManager.getWorkRecords().some(r => r.id === id)) {
+              DataManager.deleteWorkRecord(id);
+              self.renderWorkRecords();
+              self.renderItems();
+              self.renderCustomers();
+              self.renderEmployees();
+              return;
+            }
+            
+            // 删除物品
+            if (DataManager.getItems().some(i => i.id === id)) {
+              DataManager.deleteItem(id);
+              self.renderItems();
+              return;
+            }
+            
+            // 删除客户
+            if (DataManager.getCustomers().some(c => c.id === id)) {
+              DataManager.deleteCustomer(id);
+              self.renderCustomers();
+              return;
+            }
+            
+            // 删除员工
+            if (DataManager.getEmployees().some(e => e.id === id)) {
+              DataManager.deleteEmployee(id);
+              self.renderEmployees();
+              return;
+            }
+          }
+        }
+        
+        // 物品清单卡片中相关人员姓名点击事件
+        if (e.target.closest('[data-person]')) {
+          const personElement = e.target.closest('[data-person]');
+          const personName = personElement.dataset.person;
+          const itemName = personElement.dataset.item;
+          
+          // 切换到工作记录标签页
+          self.switchTab('work-records');
+          
+          // 设置搜索框为"姓名 物品"的格式
+          document.getElementById('search-input').value = `${personName} ${itemName}`;
+          
+          // 触发筛选
+          self.filterRecords();
+        }
+        
+        // 客户管理卡片中物品名称点击事件
+        if (e.target.closest('[data-item]') && e.target.closest('#customers-container')) {
+          const itemElement = e.target.closest('[data-item]');
+          const itemName = itemElement.dataset.item;
+          const customerName = itemElement.dataset.name;
+          
+          // 切换到工作记录标签页
+          self.switchTab('work-records');
+          
+          // 设置搜索框为"姓名 物品"的格式
+          document.getElementById('search-input').value = `${customerName} ${itemName}`;
+          
+          // 触发筛选
+          self.filterRecords();
+        }
+        
+        // 员工管理卡片中物品名称点击事件
+        if (e.target.closest('[data-item]') && e.target.closest('#employees-container')) {
+          const itemElement = e.target.closest('[data-item]');
+          const itemName = itemElement.dataset.item;
+          const employeeName = itemElement.dataset.name;
+          
+          // 切换到工作记录标签页
+          self.switchTab('work-records');
+          
+          // 设置搜索框为"姓名 物品"的格式
+          document.getElementById('search-input').value = `${employeeName} ${itemName}`;
+          
+          // 触发筛选
+          self.filterRecords();
+        }
+        
+        // 员工管理卡片中打包、装卸货点击事件
+        if (e.target.closest('[data-type]')) {
+          const typeElement = e.target.closest('[data-type]');
+          const recordType = typeElement.dataset.type;
+          const employeeName = typeElement.dataset.name;
+          
+          // 切换到工作记录标签页
+          self.switchTab('work-records');
+          
+          // 类型标签映射
+          const typeLabels = {
+            'outbound': '出库',
+            'inbound': '入库',
+            'packaging': '包装',
+            'packing': '打包',
+            'loading': '装卸货'
+          };
+          
+          // 设置搜索框为"姓名 类型"的格式，但要确保employeeName有效
+          if (employeeName && employeeName !== 'undefined') {
+            document.getElementById('search-input').value = `${employeeName} ${typeLabels[recordType] || recordType}`;
+          } else {
+            document.getElementById('search-input').value = typeLabels[recordType] || recordType;
+          }
+          
+          // 触发筛选
+          self.filterRecords();
+        }
+        
+        // 员工管理卡片中物品名称点击事件
+        if (e.target.closest('.item-link')) {
+          const itemElement = e.target.closest('.item-link');
+          const itemName = itemElement.dataset.item;
+          const employeeName = itemElement.dataset.name;
+          
+          // 切换到工作记录标签页
+          self.switchTab('work-records');
+          
+          // 设置搜索框为"姓名 物品 包装"的格式
+          document.getElementById('search-input').value = `${employeeName} ${itemName} 包装`;
+          
+          // 触发筛选
+          self.filterRecords();
+        }
+        
+        // 员工管理卡片中工作类型链接点击事件
+        if (e.target.closest('.work-type-link')) {
+          const typeElement = e.target.closest('.work-type-link');
+          const recordType = typeElement.dataset.type;
+          const employeeName = typeElement.dataset.name;
+          
+          // 切换到工作记录标签页
+          self.switchTab('work-records');
+          
+          // 类型标签映射
+          const typeLabels = {
+            'outbound': '出库',
+            'inbound': '入库',
+            'packaging': '包装',
+            'packing': '打包',
+            'loading': '装卸货'
+          };
+          
+          // 设置搜索框为"姓名 类型"的格式
+          document.getElementById('search-input').value = `${employeeName} ${typeLabels[recordType] || recordType}`;
+          
+          // 触发筛选
+          self.filterRecords();
+        }
+        
+        // 物品清单卡片中展开/收起相关人员按钮点击事件
+        if (e.target.closest('.expand-people-btn')) {
+          const btn = e.target.closest('.expand-people-btn');
+          const itemName = btn.dataset.item;
+          const isExpanded = btn.dataset.expanded === 'true';
+          
+          // 找到对应的物品卡片
+          const container = btn.closest('.related-people-container');
+          const peopleSpans = container.querySelectorAll('span[data-person]');
+          const separators = container.querySelectorAll('.separator');
+          
+          if (isExpanded) {
+            // 收起
+            peopleSpans.forEach((span, index) => {
+              if (index >= 5) {
+                span.classList.add('hidden');
+              }
+            });
+            
+            separators.forEach((sep, index) => {
+              if (index >= 5) {
+                sep.classList.add('hidden');
+              } else if (index === 4) {
+                sep.classList.add('hidden');
+              }
+            });
+            
+            btn.textContent = `展开 (${peopleSpans.length - 5}人)`;
+            btn.dataset.expanded = 'false';
+          } else {
+            // 展开
+            peopleSpans.forEach(span => {
+              span.classList.remove('hidden');
+            });
+            
+            separators.forEach((sep, index) => {
+              if (index < peopleSpans.length - 1) {
+                sep.classList.remove('hidden');
+              }
+            });
+            
+            btn.textContent = '收起';
+            btn.dataset.expanded = 'true';
+          }
+        }
+        });
+      }
+    };
+
+    // 初始化应用
+    document.addEventListener('DOMContentLoaded', () => {
+      DataManager.init();
+      UIManager.init();
+    });
+  </script>
+</body>
+</html>

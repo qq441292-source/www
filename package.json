@@ -1,0 +1,21 @@
+{
+  "name": "warehouse-management-system",
+  "version": "1.0.0",
+  "description": "一个基于HTML、CSS和JavaScript的简单仓库管理系统，使用Tailwind CSS框架构建",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "dev": "python -m http.server 8000"
+  },
+  "keywords": [
+    "warehouse",
+    "management",
+    "inventory",
+    "tailwindcss",
+    "html",
+    "css",
+    "javascript"
+  ],
+  "author": "仓库管理系统",
+  "license": "MIT"
+}

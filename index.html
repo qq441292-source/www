@@ -81,11 +81,17 @@
           <button class="nav-btn px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="items">
             <i class="fa fa-box mr-1"></i>物品清单
           </button>
+          <button class="nav-btn px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="price-settings">
+            <i class="fa fa-cog mr-1"></i>单价设置
+          </button>
           <button class="nav-btn px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="customers">
             <i class="fa fa-users mr-1"></i>客户管理
           </button>
           <button class="nav-btn px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="employees">
             <i class="fa fa-user-friends mr-1"></i>员工管理
+          </button>
+          <button class="nav-btn px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="expenses">
+            <i class="fa fa-money mr-1"></i>支出管理
           </button>
         </nav>
       </div>
@@ -114,11 +120,17 @@
         <button class="nav-btn w-full text-left px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="items">
           <i class="fa fa-box mr-1"></i>物品清单
         </button>
+        <button class="nav-btn w-full text-left px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="price-settings">
+          <i class="fa fa-cog mr-1"></i>单价设置
+        </button>
         <button class="nav-btn w-full text-left px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="customers">
           <i class="fa fa-users mr-1"></i>客户管理
         </button>
         <button class="nav-btn w-full text-left px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="employees">
           <i class="fa fa-user-friends mr-1"></i>员工管理
+        </button>
+        <button class="nav-btn w-full text-left px-4 py-2 rounded-md text-sm font-medium transition-all" data-tab="expenses">
+          <i class="fa fa-money mr-1"></i>支出管理
         </button>
         <!-- 移动端导出导入按钮 -->
         <div class="flex space-x-2 pt-2">
@@ -244,14 +256,117 @@
         <!-- 员工卡片将通过JS动态生成 -->
       </div>
     </section>
+    
+    <!-- 支出管理模块 -->
+    <section id="expenses" class="tab-content hidden">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">支出管理</h2>
+        <!-- 支出管理搜索和筛选 -->
+        <div class="flex items-center space-x-2">
+          <div class="w-64">
+            <input type="text" id="expense-search" placeholder="按姓名、金额、日期搜索" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus">
+          </div>
+          <div class="w-32">
+            <select id="expense-search-method" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus">
+              <option value="">所有支付方式</option>
+              <option value="现金">现金</option>
+              <option value="微信">微信</option>
+              <option value="支付宝">支付宝</option>
+              <option value="银行转账">银行转账</option>
+            </select>
+          </div>
+          <button id="add-expense-btn" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-md flex items-center btn-effect shadow-md hover:shadow-lg">
+            <i class="fa fa-plus mr-2"></i>添加支出
+          </button>
+        </div>
+      </div>
+      
+      <div id="expenses-container" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <!-- 支出记录卡片将通过JS动态生成 -->
+      </div>
+    </section>
+    
+    <!-- 单价设置模块 -->
+    <section id="price-settings" class="tab-content hidden">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">单价设置</h2>
+        <div class="flex items-center space-x-2">
+          <button id="save-price-settings" class="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-md flex items-center btn-effect shadow-md hover:shadow-lg">
+            <i class="fa fa-save mr-2"></i>保存设置
+          </button>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- 左侧 2/3 宽度：物品单价设置 -->
+        <div class="lg:col-span-2">
+          <div class="bg-white rounded-xl shadow-lg p-6 h-full">
+            <h3 class="text-lg font-bold mb-4">物品单价设置</h3>
+            <div class="mb-4">
+              <p class="text-sm text-gray-600 mb-2">说明：从物品清单中提取物品名称，按手工、焊接、验灯、包装分类设置单价</p>
+              <div class="flex space-x-2 mb-4">
+                <button id="add-price-item" class="px-3 py-1 bg-primary hover:bg-primary/90 text-white rounded-md text-sm btn-effect">
+                  <i class="fa fa-plus mr-1"></i>添加物品
+                </button>
+              </div>
+            </div>
+            
+            <div id="price-items-container" class="space-y-4">
+              <!-- 物品单价设置项将通过JS动态生成 -->
+            </div>
+          </div>
+        </div>
+        
+        <!-- 右侧 1/3 宽度：打包和装卸货费用设置 -->
+        <div class="lg:col-span-1">
+          <div class="bg-white rounded-xl shadow-lg p-6 h-full">
+            <h3 class="text-lg font-bold mb-4">打包和装卸货费用设置</h3>
+            
+            <!-- 打包费用设置 -->
+            <div class="mb-6">
+              <h4 class="text-md font-semibold mb-3">打包费用档位设置</h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">1档（元/小时）</label>
+                  <input type="number" id="packing-fee-tier1" placeholder="请输入打包费用" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus" step="0.01" min="0">
+                  <p class="text-xs text-gray-500 mt-1">档位1：适用于常规打包工作</p>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">2档（元/小时）</label>
+                  <input type="number" id="packing-fee-tier2" placeholder="请输入打包费用" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus" step="0.01" min="0">
+                  <p class="text-xs text-gray-500 mt-1">档位2：适用于复杂或特殊打包工作</p>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 装卸货费用设置 -->
+            <div>
+              <h4 class="text-md font-semibold mb-3">装卸货费用档位设置</h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">1档（元/小时）</label>
+                  <input type="number" id="loading-fee-tier1" placeholder="请输入装卸货费用" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus" step="0.01" min="0">
+                  <p class="text-xs text-gray-500 mt-1">档位1：适用于常规装卸货工作</p>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">2档（元/小时）</label>
+                  <input type="number" id="loading-fee-tier2" placeholder="请输入装卸货费用" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus" step="0.01" min="0">
+                  <p class="text-xs text-gray-500 mt-1">档位2：适用于重型或特殊装卸货工作</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!-- 页脚 -->
   <footer class="bg-white border-t mt-8 py-4">
-    <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
-      <p>© 2023 仓库管理系统 - 版权所有</p>
-    </div>
-  </footer>
+      <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
+        <p>© 2025 仓库管理系统 - 池池 - 版权所有</p>
+      </div>
+    </footer>
 
   <!-- 添加工作记录弹窗 -->
   <div id="work-record-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 opacity-0">
@@ -267,9 +382,11 @@
         <!-- 记录类型选择 -->
         <div class="mb-5">
           <label class="block text-sm font-medium text-gray-700 mb-2">记录类型</label>
-          <div class="grid grid-cols-5 gap-2" id="record-type-tabs">
+          <div class="grid grid-cols-7 gap-2" id="record-type-tabs">
             <button class="record-type-btn px-3 py-2 rounded-md text-sm font-medium border transition-all" data-type="outbound">出库</button>
             <button class="record-type-btn px-3 py-2 rounded-md text-sm font-medium border transition-all" data-type="inbound">入库</button>
+            <button class="record-type-btn px-3 py-2 rounded-md text-sm font-medium border transition-all" data-type="welding">焊接</button>
+            <button class="record-type-btn px-3 py-2 rounded-md text-sm font-medium border transition-all" data-type="testing">验灯</button>
             <button class="record-type-btn px-3 py-2 rounded-md text-sm font-medium border transition-all" data-type="packaging">包装</button>
             <button class="record-type-btn px-3 py-2 rounded-md text-sm font-medium border transition-all" data-type="packing">打包</button>
             <button class="record-type-btn px-3 py-2 rounded-md text-sm font-medium border transition-all" data-type="loading">装卸货</button>
@@ -440,6 +557,22 @@
         </div>
         
         <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">打包费用档位</label>
+          <select id="employee-packing-tier" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus">
+            <option value="1">1档</option>
+            <option value="2">2档</option>
+          </select>
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">装卸货费用档位</label>
+          <select id="employee-loading-tier" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus">
+            <option value="1">1档</option>
+            <option value="2">2档</option>
+          </select>
+        </div>
+        
+        <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-1">备注</label>
           <textarea id="employee-notes" rows="3" placeholder="请输入备注信息" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus"></textarea>
         </div>
@@ -482,8 +615,8 @@
       addWorkRecord(record) {
         const records = this.getWorkRecords();
         
-        // 如果是出库、入库或包装类型，并且有多个物品，则为每个物品创建独立记录
-        if (['outbound', 'inbound', 'packaging'].includes(record.type) && record.items && record.items.length > 0) {
+        // 如果是出库、入库、焊接、验灯或包装类型，并且有多个物品，则为每个物品创建独立记录
+        if (['outbound', 'inbound', 'welding', 'testing', 'packaging'].includes(record.type) && record.items && record.items.length > 0) {
           record.items.forEach(item => {
             // 为每个物品创建独立记录
             records.push({
@@ -513,9 +646,9 @@
         const index = records.findIndex(record => record.id === updatedRecord.id);
         
         if (index !== -1) {
-          // 如果是出库、入库或包装类型，并且有多个物品，则为每个物品创建独立记录
+          // 如果是出库、入库、焊接、验灯或包装类型，并且有多个物品，则为每个物品创建独立记录
           // 但如果这是编辑操作（即记录已存在），则更新原有记录而不是创建新记录
-          if (['outbound', 'inbound', 'packaging'].includes(updatedRecord.type) && updatedRecord.items && updatedRecord.items.length > 0) {
+          if (['outbound', 'inbound', 'welding', 'testing', 'packaging'].includes(updatedRecord.type) && updatedRecord.items && updatedRecord.items.length > 0) {
             records[index] = updatedRecord;
           } else {
             // 其他类型或没有物品的记录按原样更新
@@ -542,7 +675,7 @@
       
       addItem(item) {
         const items = this.getItems();
-        items.push({
+        items.unshift({
           id: Date.now().toString(),
           ...item,
           createdAt: new Date().toISOString()
@@ -575,7 +708,7 @@
       
       addCustomer(customer) {
         const customers = this.getCustomers();
-        customers.push({
+        customers.unshift({
           id: Date.now().toString(),
           ...customer,
           createdAt: new Date().toISOString()
@@ -608,9 +741,11 @@
       
       addEmployee(employee) {
         const employees = this.getEmployees();
-        employees.push({
+        employees.unshift({
           id: Date.now().toString(),
           ...employee,
+          packingTier: employee.packingTier || '1',
+          loadingTier: employee.loadingTier || '1',
           createdAt: new Date().toISOString()
         });
         localStorage.setItem('employees', JSON.stringify(employees));
@@ -621,7 +756,11 @@
         const employees = this.getEmployees();
         const index = employees.findIndex(employee => employee.id === updatedEmployee.id);
         if (index !== -1) {
-          employees[index] = updatedEmployee;
+          employees[index] = {
+            ...updatedEmployee,
+            packingTier: updatedEmployee.packingTier || '1',
+            loadingTier: updatedEmployee.loadingTier || '1'
+          };
           localStorage.setItem('employees', JSON.stringify(employees));
         }
         return employees;
@@ -641,6 +780,15 @@
       
       setLastRecordType(type) {
         localStorage.setItem('lastRecordType', type);
+      },
+      
+      // 价格相关方法
+      getPrices() {
+        return JSON.parse(localStorage.getItem('prices') || '{"items":{}}');
+      },
+      
+      savePrices(prices) {
+        localStorage.setItem('prices', JSON.stringify(prices));
       }
     };
 
@@ -712,6 +860,7 @@
         this.filtersInitialized = false;
         this.customerFiltersInitialized = false;
         this.itemFiltersInitialized = false;
+        this.isEditMode = false; // 编辑模式标志
         this.renderAll();
         this.setupEventListeners();
         this.setDefaultDate();
@@ -791,6 +940,8 @@
           const typeLabels = {
             'outbound': { text: '出库', class: 'bg-danger/10 text-danger' },
             'inbound': { text: '入库', class: 'bg-secondary/10 text-secondary' },
+            'welding': { text: '焊接', class: 'bg-purple-500/10 text-purple-500' },
+            'testing': { text: '验灯', class: 'bg-pink-500/10 text-pink-500' },
             'packaging': { text: '包装', class: 'bg-warning/10 text-warning' },
             'packing': { text: '打包', class: 'bg-info/10 text-info' },
             'loading': { text: '装卸货', class: 'bg-primary/10 text-primary' }
@@ -799,7 +950,7 @@
           const typeInfo = typeLabels[record.type];
           let contentHTML = '';
           
-          if (['outbound', 'inbound', 'packaging'].includes(record.type)) {
+          if (['outbound', 'inbound', 'welding', 'testing', 'packaging'].includes(record.type)) {
             contentHTML = `
               <div class="mt-3 space-y-2">
                 ${record.items.map(item => `
@@ -830,6 +981,8 @@
           const typeBackgrounds = {
             'outbound': 'bg-danger/5',
             'inbound': 'bg-secondary/5',
+            'welding': 'bg-purple-500/5',
+            'testing': 'bg-pink-500/5',
             'packaging': 'bg-warning/5',
             'packing': 'bg-info/5',
             'loading': 'bg-primary/5'
@@ -893,6 +1046,8 @@
         const typeLabels = {
           'outbound': '出库',
           'inbound': '入库',
+          'welding': '焊接',
+          'testing': '验灯',
           'packaging': '包装',
           'packing': '打包',
           'loading': '装卸货'
@@ -1164,6 +1319,7 @@
       renderCustomers(filteredCustomers = null) {
         const customers = filteredCustomers || DataManager.getCustomers();
         const workRecords = DataManager.getWorkRecords();
+        const prices = DataManager.getPrices(); // 获取价格设置
         const container = document.getElementById('customers-container');
         container.innerHTML = '';
         
@@ -1241,7 +1397,16 @@
           
           // 生成物品出入库数据的HTML
           let itemStatsHTML = '';
+          // 计算入库工资
+          let inboundWage = 0;
           for (const [itemName, stats] of Object.entries(itemStats)) {
+            // 获取物品的手工单价
+            const itemPrice = prices.items[itemName]?.manual || 0;
+            // 计算该物品的入库工资
+            const itemWage = stats.in * itemPrice;
+            // 累加到总入库工资
+            inboundWage += itemWage;
+            
             itemStatsHTML += `
               <div class="flex justify-between text-sm">
                 <span class="text-primary hover:text-primary/80 cursor-pointer" data-item="${itemName}" data-name="${customer.name}">${itemName}</span>
@@ -1249,11 +1414,23 @@
               </div>`;
           }
           
+          // 计算总工资
+          const totalWage = inboundWage;
+          
+          // 计算已支付工资
+          const customerExpenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+          const customerPaidWage = customerExpenses
+            .filter(expense => expense.name === customer.name)
+            .reduce((sum, expense) => sum + expense.amount, 0);
+          
           const card = document.createElement('div');
           card.className = 'bg-white rounded-xl p-5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100';
           card.innerHTML = `
             <div class="flex justify-between items-start">
               <h4 class="font-bold text-lg">${customer.name}</h4>
+              ${lastRecordDate ? `
+                <span class="text-xs text-gray-500">最近: ${new Date(lastRecordDate).toLocaleDateString()}</span>
+              ` : ''}
             </div>
             
             <div class="mt-2 text-sm text-gray-600">
@@ -1279,9 +1456,23 @@
             ` : ''}
             
             <div class="mt-3">
-              ${lastRecordDate ? `
-                <div class="text-xs text-gray-500 mb-2">最近: ${new Date(lastRecordDate).toLocaleDateString()}</div>
-              ` : ''}
+              <div class="mt-2">
+                <div class="flex justify-between">
+                  <span class="text-sm font-bold text-black">预计工资:</span>
+                  <span class="text-sm font-bold text-black">¥${totalWage.toFixed(2)}</span>
+                </div>
+                ${customerPaidWage > 0 ? `
+                  <div class="flex justify-between">
+                    <span class="text-sm font-bold text-red-500">已支付:</span>
+                    <span class="text-sm font-bold text-red-500">¥${customerPaidWage.toFixed(2)}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-sm font-bold text-primary">实际工资:</span>
+                    <span class="text-sm font-bold text-primary">¥${(totalWage - customerPaidWage).toFixed(2)}</span>
+                  </div>
+                ` : ''}
+                <hr class="my-2 border-gray-300">
+              </div>
               <div class="flex space-x-2">
                 <button class="history-btn text-info hover:text-info/80 text-sm flex items-center" data-id="${customer.id}" data-name="${customer.name}">
                   <i class="fa fa-history mr-1"></i> 查看历史
@@ -1325,7 +1516,7 @@
             // 检查相关物品
             let matchesItem = false;
             const relatedRecords = workRecords.filter(record => {
-              if (record.type === 'inbound' || record.type === 'outbound' || record.type === 'packaging') {
+              if (record.type === 'inbound' || record.type === 'outbound' || record.type === 'welding' || record.type === 'testing' || record.type === 'packaging') {
                 return record.items.some(item => item.name === customer.name);
               }
               return false;
@@ -1357,6 +1548,7 @@
       renderEmployees(filteredEmployees = null) {
         const employees = filteredEmployees || DataManager.getEmployees();
         const workRecords = DataManager.getWorkRecords();
+        const prices = DataManager.getPrices(); // 获取价格设置
         const container = document.getElementById('employees-container');
         container.innerHTML = '';
         
@@ -1374,12 +1566,16 @@
           // 查找相关记录
           let relatedRecordsCount = 0;
           let packagingCount = 0;
+          let weldingCount = 0; // 焊接次数
+          let testingCount = 0; // 验灯次数
           let packingCount = 0;
           let loadingCount = 0;
           let lastRecordDate = null;
           
           // 用于存储员工处理的物品数据
           const itemStats = {};
+          const weldingItemStats = {}; // 焊接处理的物品
+          const testingItemStats = {}; // 验灯处理的物品
           // 用于存储打包和装卸货的时间
           let packingDuration = 0;
           let loadingDuration = 0;
@@ -1400,6 +1596,38 @@
                       itemStats[item.item] = 0;
                     }
                     itemStats[item.item] += parseInt(item.quantity) || 0;
+                  }
+                });
+              }
+            } else if (record.type === 'welding') {
+              if (record.items.some(item => item.name === employee.name)) {
+                relatedRecordsCount++;
+                weldingCount++; // 增加焊接次数
+                isRelated = true;
+                
+                // 记录员工处理的物品
+                record.items.forEach(item => {
+                  if (item.name === employee.name) {
+                    if (!weldingItemStats[item.item]) {
+                      weldingItemStats[item.item] = 0;
+                    }
+                    weldingItemStats[item.item] += parseInt(item.quantity) || 0;
+                  }
+                });
+              }
+            } else if (record.type === 'testing') {
+              if (record.items.some(item => item.name === employee.name)) {
+                relatedRecordsCount++;
+                testingCount++; // 增加验灯次数
+                isRelated = true;
+                
+                // 记录员工处理的物品
+                record.items.forEach(item => {
+                  if (item.name === employee.name) {
+                    if (!testingItemStats[item.item]) {
+                      testingItemStats[item.item] = 0;
+                    }
+                    testingItemStats[item.item] += parseInt(item.quantity) || 0;
                   }
                 });
               }
@@ -1436,13 +1664,42 @@
             }
           });
           
-          // 生成物品数据的HTML
+          // 生成物品数据的HTML (物品, 数量, 金额)
           let itemStatsHTML = '';
           for (const [itemName, quantity] of Object.entries(itemStats)) {
+            const itemPrice = prices.items[itemName]?.packaging || 0;
+            const amount = (quantity * itemPrice).toFixed(2);
             itemStatsHTML += `
-              <div class="flex justify-between text-sm">
-                <span class="text-primary hover:text-primary/80 cursor-pointer item-link" data-item="${itemName}" data-name="${employee.name}">${itemName}</span>
-                <span>${quantity}</span>
+              <div class="grid grid-cols-3 gap-4 text-sm">
+                <div class="text-primary hover:text-primary/80 cursor-pointer item-link" data-item="${itemName}" data-name="${employee.name}">${itemName}</div>
+                <div class="text-center">${quantity}</div>
+                <div class="text-right">¥${amount}</div>
+              </div>`;
+          }
+          
+          // 生成焊接物品数据的HTML (物品, 数量, 金额)
+          let weldingItemStatsHTML = '';
+          for (const [itemName, quantity] of Object.entries(weldingItemStats)) {
+            const itemPrice = prices.items[itemName]?.welding || 0;
+            const amount = (quantity * itemPrice).toFixed(2);
+            weldingItemStatsHTML += `
+              <div class="grid grid-cols-3 gap-4 text-sm">
+                <div class="text-primary hover:text-primary/80 cursor-pointer item-link" data-item="${itemName}" data-name="${employee.name}">${itemName}</div>
+                <div class="text-center">${quantity}</div>
+                <div class="text-right">¥${amount}</div>
+              </div>`;
+          }
+          
+          // 生成验灯物品数据的HTML (物品, 数量, 金额)
+          let testingItemStatsHTML = '';
+          for (const [itemName, quantity] of Object.entries(testingItemStats)) {
+            const itemPrice = prices.items[itemName]?.inspection || 0;
+            const amount = (quantity * itemPrice).toFixed(2);
+            testingItemStatsHTML += `
+              <div class="grid grid-cols-3 gap-4 text-sm">
+                <div class="text-primary hover:text-primary/80 cursor-pointer item-link" data-item="${itemName}" data-name="${employee.name}">${itemName}</div>
+                <div class="text-center">${quantity}</div>
+                <div class="text-right">¥${amount}</div>
               </div>`;
           }
           
@@ -1457,11 +1714,55 @@
             }
           };
           
+          // 计算各类工作的工资
+          // 包装工资 = 包装物品数量 * 包装单价
+          let packagingWage = 0;
+          for (const [itemName, quantity] of Object.entries(itemStats)) {
+            const itemPrice = prices.items[itemName]?.packaging || 0;
+            packagingWage += quantity * itemPrice;
+          }
+          
+          // 焊接工资 = 焊接物品数量 * 焊接单价
+          let weldingWage = 0;
+          for (const [itemName, quantity] of Object.entries(weldingItemStats)) {
+            const itemPrice = prices.items[itemName]?.welding || 0;
+            weldingWage += quantity * itemPrice;
+          }
+          
+          // 验灯工资 = 验灯物品数量 * 验灯单价
+          let testingWage = 0;
+          for (const [itemName, quantity] of Object.entries(testingItemStats)) {
+            const itemPrice = prices.items[itemName]?.inspection || 0;
+            testingWage += quantity * itemPrice;
+          }
+          
+          // 打包工资 = 打包时间(小时) * 打包单价(根据员工档位)
+          const packingHours = packingDuration / 60;
+          const packingCost = employee.packingTier === '2' ? (prices.packagingCostTier2 || 0) : (prices.packagingCostTier1 || prices.packagingCost || 0);
+          const packingWage = packingHours * packingCost;
+          
+          // 装卸货工资 = 装卸货时间(小时) * 装卸货单价(根据员工档位)
+          const loadingHours = loadingDuration / 60;
+          const loadingCost = employee.loadingTier === '2' ? (prices.loadingCostTier2 || 0) : (prices.loadingCostTier1 || prices.loadingCost || 0);
+          const loadingWage = loadingHours * loadingCost;
+          
+          // 计算总工资
+          const totalWage = packagingWage + weldingWage + testingWage + packingWage + loadingWage;
+          
+          // 计算已支付工资
+          const expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+          const paidWage = expenses
+            .filter(expense => expense.name === employee.name)
+            .reduce((sum, expense) => sum + expense.amount, 0);
+          
           const card = document.createElement('div');
           card.className = 'bg-white rounded-xl p-5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100';
           card.innerHTML = `
             <div class="flex justify-between items-start">
               <h4 class="font-bold text-lg">${employee.name}</h4>
+              ${lastRecordDate ? `
+                <span class="text-xs text-gray-500">最近: ${new Date(lastRecordDate).toLocaleDateString()}</span>
+              ` : ''}
             </div>
             
             <div class="mt-2 text-sm text-gray-600">
@@ -1469,32 +1770,72 @@
               <div class="mt-1"><strong>总记录数:</strong> ${relatedRecordsCount}</div>
               <div class="mt-1">
                 <strong>工作类型:</strong> 
-                <span class="text-primary hover:text-primary/80 cursor-pointer work-type-link" data-type="packaging" data-name="${employee.name}">包装(${packagingCount})</span> | <span class="text-primary hover:text-primary/80 cursor-pointer work-type-link" data-type="packing" data-name="${employee.name}">打包(${packingCount})</span> | <span class="text-primary hover:text-primary/80 cursor-pointer work-type-link" data-type="loading" data-name="${employee.name}">装卸货(${loadingCount})</span>
+                <span class="text-primary hover:text-primary/80 cursor-pointer work-type-link" data-type="packaging" data-name="${employee.name}">包装(${packagingCount})</span> | <span class="text-primary hover:text-primary/80 cursor-pointer work-type-link" data-type="welding" data-name="${employee.name}">焊接(${weldingCount})</span> | <span class="text-primary hover:text-primary/80 cursor-pointer work-type-link" data-type="testing" data-name="${employee.name}">验灯(${testingCount})</span> | <span class="text-primary hover:text-primary/80 cursor-pointer work-type-link" data-type="packing" data-name="${employee.name}">打包(${packingCount})</span> | <span class="text-primary hover:text-primary/80 cursor-pointer work-type-link" data-type="loading" data-name="${employee.name}">装卸货(${loadingCount})</span>
+              </div>
+              <div class="mt-1 grid grid-cols-3 gap-4 font-bold">
+                <div>项目</div>
+                <div class="text-center">数量</div>
+                <div class="text-right">金额</div>
               </div>
               
               ${Object.keys(itemStats).length > 0 ? `
                 <div class="mt-2 pt-2 border-t border-gray-100">
-                  <strong>处理物品:</strong>
+                  <div class="grid grid-cols-3 gap-4 font-bold">
+                    <div>包装</div>
+                    <div class="text-center">${Object.values(itemStats).reduce((a, b) => a + b, 0)}</div>
+                    <div class="text-right">¥${packagingWage.toFixed(2)}</div>
+                  </div>
                   <div class="mt-1 space-y-1">
                     ${itemStatsHTML}
                   </div>
-                  <div class="mt-1 text-sm text-right"><strong>总数:</strong> ${Object.values(itemStats).reduce((a, b) => a + b, 0)}</div>
                 </div>
               ` : ''}
               
-              <div class="mt-2 pt-2 border-t border-gray-100">
-                <strong>工作时长:</strong>
-                <div class="mt-1 space-y-1">
-                  <div class="flex justify-start text-sm">
-                    <span>打包:</span>
-                    <span class="ml-2">${formatDuration(packingDuration)}</span>
+              ${Object.keys(weldingItemStats).length > 0 ? `
+                <div class="mt-2 pt-2 border-t border-gray-100">
+                  <div class="grid grid-cols-3 gap-4 font-bold">
+                    <div>焊接</div>
+                    <div class="text-center">${Object.values(weldingItemStats).reduce((a, b) => a + b, 0)}</div>
+                    <div class="text-right">¥${weldingWage.toFixed(2)}</div>
                   </div>
-                  <div class="flex justify-start text-sm">
-                    <span>装卸:</span>
-                    <span class="ml-2">${formatDuration(loadingDuration)}</span>
+                  <div class="mt-1 space-y-1">
+                    ${weldingItemStatsHTML}
                   </div>
                 </div>
-              </div>
+              ` : ''}
+              
+              ${Object.keys(testingItemStats).length > 0 ? `
+                <div class="mt-2 pt-2 border-t border-gray-100">
+                  <div class="grid grid-cols-3 gap-4 font-bold">
+                    <div>验灯</div>
+                    <div class="text-center">${Object.values(testingItemStats).reduce((a, b) => a + b, 0)}</div>
+                    <div class="text-right">¥${testingWage.toFixed(2)}</div>
+                  </div>
+                  <div class="mt-1 space-y-1">
+                    ${testingItemStatsHTML}
+                  </div>
+                </div>
+              ` : ''}
+              
+              ${(packingDuration > 0 || loadingDuration > 0) ? `
+                <div class="mt-2 pt-2 border-t border-gray-100">
+                  <strong>工作时长:</strong>
+                  <div class="mt-1 space-y-1">
+                    ${packingDuration > 0 ? `
+                      <div class="flex justify-between text-sm">
+                        <span>打包(${employee.packingTier || '1'}): ${formatDuration(packingDuration)}</span>
+                        <span><strong>¥${Math.round(packingWage)}</strong></span>
+                      </div>
+                    ` : ''}
+                    ${loadingDuration > 0 ? `
+                      <div class="flex justify-between text-sm pt-2">
+                        <span>装卸(${employee.loadingTier || '1'}): ${formatDuration(loadingDuration)}</span>
+                        <span><strong>¥${Math.round(loadingWage)}</strong></span>
+                      </div>
+                    ` : ''}
+                  </div>
+                </div>
+              ` : ''}
             </div>
             
             ${employee.notes ? `
@@ -1504,9 +1845,23 @@
             ` : ''}
             
             <div class="mt-3 pt-3 border-t border-gray-100">
-              ${lastRecordDate ? `
-                <span class="text-xs text-gray-500">最近: ${new Date(lastRecordDate).toLocaleDateString()}</span>
-              ` : ''}
+              <div class="mt-2">
+                <div class="flex justify-between">
+                  <span class="text-sm font-bold text-black">预计工资:</span>
+                  <span class="text-sm font-bold text-black">¥${totalWage.toFixed(2)}</span>
+                </div>
+                ${paidWage > 0 ? `
+                  <div class="flex justify-between">
+                    <span class="text-sm font-bold text-red-500">已支付:</span>
+                    <span class="text-sm font-bold text-red-500">¥${paidWage.toFixed(2)}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-sm font-bold text-primary">实际工资:</span>
+                    <span class="text-sm font-bold text-primary">¥${(totalWage - paidWage).toFixed(2)}</span>
+                  </div>
+                ` : ''}
+                <hr class="my-2 border-gray-300">
+              </div>
               <div class="mt-2 flex space-x-2">
                 <button class="history-btn text-info hover:text-info/80 text-sm flex items-center" data-id="${employee.id}" data-name="${employee.name}">
                   <i class="fa fa-history mr-1"></i> 查看历史
@@ -1543,6 +1898,8 @@
         const typeColors = {
           'outbound': 'bg-danger',
           'inbound': 'bg-secondary',
+          'welding': 'bg-purple-500',
+          'testing': 'bg-pink-500',
           'packaging': 'bg-warning',
           'packing': 'bg-info',
           'loading': 'bg-primary'
@@ -1579,7 +1936,7 @@
         });
         
         // 显示对应的表单，添加过渡动画
-        if (['outbound', 'inbound', 'packaging'].includes(type)) {
+        if (['outbound', 'inbound', 'welding', 'testing', 'packaging'].includes(type)) {
           document.getElementById('standard-form').classList.remove('hidden');
           document.getElementById('time-form').classList.add('hidden');
           
@@ -1651,10 +2008,12 @@
         
         // 添加删除事件
         newRow.querySelector('.remove-item-btn').addEventListener('click', function() {
-          newRow.classList.add('opacity-0', 'translate-y-2');
-          setTimeout(() => {
-            newRow.remove();
-          }, 300);
+          if (document.querySelectorAll('.item-row').length > 1) {
+            newRow.classList.add('opacity-0', 'translate-y-2');
+            setTimeout(() => {
+              newRow.remove();
+            }, 300);
+          }
         });
       },
       
@@ -1680,10 +2039,102 @@
         
         // 添加删除事件
         newRow.querySelector('.remove-time-btn').addEventListener('click', function() {
-          newRow.classList.add('opacity-0', 'translate-y-2');
-          setTimeout(() => {
-            newRow.remove();
-          }, 300);
+          if (document.querySelectorAll('.time-row').length > 1) {
+            newRow.classList.add('opacity-0', 'translate-y-2');
+            setTimeout(() => {
+              newRow.remove();
+            }, 300);
+          }
+        });
+      },
+      
+      // 重置工作记录表单
+      resetWorkRecordForm() {
+        // 重置记录类型选择
+        document.querySelectorAll('.record-type-btn').forEach(btn => {
+          // 移除所有可能的颜色类
+          btn.classList.remove(
+            'bg-primary', 'bg-secondary', 'bg-danger', 'bg-warning', 'bg-info',
+            'text-white', 'border-primary', 'border-secondary', 'border-danger', 
+            'border-warning', 'border-info', 'shadow-sm', 'border-2'
+          );
+          btn.classList.add('bg-white', 'text-gray-700', 'border-gray-300');
+        });
+        
+        // 默认选中第一个类型（出库）
+        this.selectRecordType('outbound');
+        
+        // 清空物品信息
+        const itemsContainer = document.getElementById('items-container-form');
+        itemsContainer.innerHTML = `
+          <div class="item-row grid grid-cols-12 gap-2">
+            <input type="text" placeholder="姓名" class="name-input col-span-4 px-3 py-2 border border-gray-300 rounded-md input-focus" required>
+            <input type="text" placeholder="物品" class="item-input col-span-5 px-3 py-2 border border-gray-300 rounded-md input-focus">
+            <input type="number" placeholder="数量" class="quantity-input col-span-2 px-3 py-2 border border-gray-300 rounded-md input-focus">
+            <button type="button" class="remove-item-btn text-gray-500 hover:text-danger self-center px-2 p-1 rounded-full hover:bg-gray-100 transition-colors">
+              <i class="fa fa-trash"></i>
+            </button>
+          </div>
+        `;
+        
+        // 清空时间信息
+        const timesContainer = document.getElementById('times-container-form');
+        timesContainer.innerHTML = `
+          <div class="time-row grid grid-cols-12 gap-2">
+            <input type="datetime-local" class="start-time-input col-span-5 px-3 py-2 border border-gray-300 rounded-md input-focus">
+            <div class="col-span-2 flex items-center justify-center text-gray-500">至</div>
+            <input type="datetime-local" class="end-time-input col-span-5 px-3 py-2 border border-gray-300 rounded-md input-focus">
+            <button type="button" class="remove-time-btn text-gray-500 hover:text-danger self-center px-2 p-1 rounded-full hover:bg-gray-100 transition-colors">
+              <i class="fa fa-trash"></i>
+            </button>
+          </div>
+        `;
+        
+        // 重置日期为今天
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        document.getElementById('record-date').value = `${yyyy}-${mm}-${dd}`;
+        
+        // 清空备注
+        document.getElementById('record-notes').value = '';
+        
+        // 清空参与人员
+        document.getElementById('participants-input').value = '';
+        
+        // 重新绑定删除事件
+        this.bindItemRemoveEvents();
+        this.bindTimeRemoveEvents();
+      },
+      
+      // 绑定物品行删除事件
+      bindItemRemoveEvents() {
+        document.querySelectorAll('.remove-item-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            if (document.querySelectorAll('.item-row').length > 1) {
+              const row = this.closest('.item-row');
+              row.classList.add('opacity-0', 'translate-y-2');
+              setTimeout(() => {
+                row.remove();
+              }, 200);
+            }
+          });
+        });
+      },
+      
+      // 绑定时间行删除事件
+      bindTimeRemoveEvents() {
+        document.querySelectorAll('.remove-time-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            if (document.querySelectorAll('.time-row').length > 1) {
+              const row = this.closest('.time-row');
+              row.classList.add('opacity-0', 'translate-y-2');
+              setTimeout(() => {
+                row.remove();
+              }, 200);
+            }
+          });
         });
       },
       
@@ -1699,9 +2150,9 @@
           modalContent.style.transform = 'scale(1)';
         }, 50);
         
-        // 如果是工作记录模态框，设置默认时间
-        if (modalId === 'work-record-modal') {
-          this.setDefaultTime();
+        // 如果是工作记录模态框且不是编辑模式，重置表单
+        if (modalId === 'work-record-modal' && !this.isEditMode) {
+          this.resetWorkRecordForm();
         }
         
         // 阻止背景滚动
@@ -1719,6 +2170,9 @@
             modal.classList.add('hidden');
           }, 300);
         });
+        
+        // 重置编辑模式标志
+        this.isEditMode = false;
         
         // 恢复背景滚动
         document.body.style.overflow = '';
@@ -1778,11 +2232,15 @@
         // 添加物品行
         document.getElementById('add-item-row').addEventListener('click', () => {
           self.addItemRow();
+          // 重新绑定删除事件
+          self.bindItemRemoveEvents();
         });
         
         // 添加时间段行
         document.getElementById('add-time-row').addEventListener('click', () => {
           self.addTimeRow();
+          // 重新绑定删除事件
+          self.bindTimeRemoveEvents();
         });
         
         // 初始物品行删除事件
@@ -1829,6 +2287,7 @@
         
         // 打开工作记录弹窗
         document.getElementById('add-work-record-btn').addEventListener('click', () => {
+          self.isEditMode = false;
           self.showModal('work-record-modal');
           
           // 隐藏编辑警告文本
@@ -1880,7 +2339,12 @@
         // 保存工作记录
         const saveWorkRecordBtn = document.getElementById('save-work-record');
         saveWorkRecordBtn.addEventListener('click', function() {
-          const selectedType = document.querySelector('.record-type-btn.bg-primary, .record-type-btn.bg-secondary, .record-type-btn.bg-danger, .record-type-btn.bg-warning, .record-type-btn.bg-info').dataset.type;
+          const selectedTypeBtn = document.querySelector('.record-type-btn:not(.bg-white)');
+          if (!selectedTypeBtn) {
+            alert('请选择记录类型');
+            return;
+          }
+          const selectedType = selectedTypeBtn.dataset.type;
           const date = document.getElementById('record-date').value;
           const notes = document.getElementById('record-notes').value;
           
@@ -1896,7 +2360,7 @@
             notes: notes
           };
           
-          if (['outbound', 'inbound', 'packaging'].includes(selectedType)) {
+          if (['outbound', 'inbound', 'welding', 'testing', 'packaging'].includes(selectedType)) {
             const items = [];
             let hasValidItem = false;
             
@@ -2055,13 +2519,15 @@
           const name = document.getElementById('employee-name').value.trim();
           const phone = document.getElementById('employee-phone').value.trim();
           const notes = document.getElementById('employee-notes').value.trim();
+          const packingTier = document.getElementById('employee-packing-tier').value;
+          const loadingTier = document.getElementById('employee-loading-tier').value;
           
           if (!name) {
             alert('请输入员工姓名');
             return;
           }
           
-          DataManager.addEmployee({ name, phone, notes });
+          DataManager.addEmployee({ name, phone, notes, packingTier, loadingTier });
           self.renderEmployees();
           self.hideAllModals();
           
@@ -2069,6 +2535,8 @@
           document.getElementById('employee-name').value = '';
           document.getElementById('employee-phone').value = '';
           document.getElementById('employee-notes').value = '';
+          document.getElementById('employee-packing-tier').value = '1';
+          document.getElementById('employee-loading-tier').value = '1';
         });
         
         // 为保存员工按钮绑定回车键
@@ -2109,7 +2577,7 @@
               self.selectRecordType(record.type);
               document.getElementById('record-notes').value = record.notes || '';
               
-              if (['outbound', 'inbound', 'packaging'].includes(record.type)) {
+              if (['outbound', 'inbound', 'welding', 'testing', 'packaging'].includes(record.type)) {
                 // 填充物品信息
                 const itemsContainer = document.getElementById('items-container-form');
                 itemsContainer.innerHTML = '';
@@ -2135,6 +2603,9 @@
                 document.getElementById('participants-input').value = record.participants || '';
               }
               
+              // 设置编辑模式标志
+              self.isEditMode = true;
+              
               // 显示弹窗
               self.showModal('work-record-modal');
               
@@ -2152,76 +2623,184 @@
                 record.date = document.getElementById('record-date').value;
                 record.notes = document.getElementById('record-notes').value;
                 // 更新记录类型
-                record.type = document.querySelector('.record-type-btn.bg-primary, .record-type-btn.bg-secondary, .record-type-btn.bg-danger, .record-type-btn.bg-warning, .record-type-btn.bg-info').dataset.type;
+              const newTypeBtn = document.querySelector('.record-type-btn:not(.bg-white)');
+              if (!newTypeBtn) {
+                alert('请选择记录类型');
+                return;
+              }
+              const newType = newTypeBtn.dataset.type;
+                const oldType = record.type;
+                record.type = newType;
                 
-                if (['outbound', 'inbound', 'packaging'].includes(record.type)) {
-                  // 更新物品信息
-                  const items = [];
-                  let hasValidItem = false;
-                  
-                  document.querySelectorAll('.item-row').forEach((row, index) => {
-                    const name = row.querySelector('.name-input').value.trim();
-                    const item = row.querySelector('.item-input').value.trim();
-                    const quantity = row.querySelector('.quantity-input').value.trim();
+                // 根据新类型处理数据
+                if (['outbound', 'inbound', 'welding', 'testing', 'packaging'].includes(newType)) {
+                  // 如果新类型是物品类型
+                  if (!['outbound', 'inbound', 'welding', 'testing', 'packaging'].includes(oldType)) {
+                    // 如果旧类型不是物品类型，需要重新收集物品信息
+                    const items = [];
+                    let hasValidItem = false;
                     
-                    // 如果姓名不为空，则认为是有效行
-                    if (name) {
-                      hasValidItem = true;
-                      items.push({ name, item, quantity });
-                    }
-                    // 如果物品或数量不为空但姓名为空，提示用户
-                    else if (item || quantity) {
-                      alert(`第${index + 1}行物品信息不完整，请填写姓名`);
-                      return;
-                    }
-                  });
-                  
-                  if (!hasValidItem) {
-                    alert('请至少填写一行有效的物品信息，姓名为必填项');
-                    return;
-                  }
-                  
-                  record.items = items;
-                } else {
-                  // 更新时间信息
-                  const times = [];
-                  let hasValidTime = false;
-                  
-                  document.querySelectorAll('.time-row').forEach((row, index) => {
-                    const start = row.querySelector('.start-time-input').value;
-                    const end = row.querySelector('.end-time-input').value;
-                    
-                    // 如果开始和结束时间都不为空，则认为是有效行
-                    if (start && end) {
-                      // 验证时间逻辑
-                      if (new Date(start) >= new Date(end)) {
-                        alert(`第${index + 1}行时间段不正确，开始时间必须早于结束时间`);
+                    document.querySelectorAll('.item-row').forEach((row, index) => {
+                      const name = row.querySelector('.name-input').value.trim();
+                      const item = row.querySelector('.item-input').value.trim();
+                      const quantity = row.querySelector('.quantity-input').value.trim();
+                      
+                      // 如果姓名不为空，则认为是有效行
+                      if (name) {
+                        hasValidItem = true;
+                        items.push({ name, item, quantity });
+                      }
+                      // 如果物品或数量不为空但姓名为空，提示用户
+                      else if (item || quantity) {
+                        alert(`第${index + 1}行物品信息不完整，请填写姓名`);
+                        // 恢复原来的类型
+                        record.type = oldType;
                         return;
                       }
-                      hasValidTime = true;
-                      times.push({ start, end });
-                    }
-                    // 如果开始或结束时间有一个不为空但另一个为空，提示用户
-                    else if (start || end) {
-                      alert(`第${index + 1}行时间段不完整，请填写完整的开始和结束时间`);
+                    });
+                    
+                    if (!hasValidItem) {
+                      alert('请至少填写一行有效的物品信息，姓名为必填项');
+                      // 恢复原来的类型
+                      record.type = oldType;
                       return;
                     }
-                  });
-                  
-                  const participants = document.getElementById('participants-input').value.trim();
-                  
-                  if (!participants) {
-                    alert('请输入参与人员');
-                    return;
+                    
+                    record.items = items;
+                  } else {
+                    // 如果旧类型也是物品类型，重新收集物品信息
+                    const items = [];
+                    let hasValidItem = false;
+                    
+                    document.querySelectorAll('.item-row').forEach((row, index) => {
+                      const name = row.querySelector('.name-input').value.trim();
+                      const item = row.querySelector('.item-input').value.trim();
+                      const quantity = row.querySelector('.quantity-input').value.trim();
+                      
+                      // 如果姓名不为空，则认为是有效行
+                      if (name) {
+                        hasValidItem = true;
+                        items.push({ name, item, quantity });
+                      }
+                      // 如果物品或数量不为空但姓名为空，提示用户
+                      else if (item || quantity) {
+                        alert(`第${index + 1}行物品信息不完整，请填写姓名`);
+                        // 恢复原来的类型
+                        record.type = oldType;
+                        return;
+                      }
+                    });
+                    
+                    if (!hasValidItem) {
+                      alert('请至少填写一行有效的物品信息，姓名为必填项');
+                      // 恢复原来的类型
+                      record.type = oldType;
+                      return;
+                    }
+                    
+                    record.items = items;
                   }
-                  
-                  if (!hasValidTime) {
-                    alert('请至少填写一个有效的时间段');
-                    return;
+                } else {
+                  // 如果新类型是时间类型
+                  if (['outbound', 'inbound', 'welding', 'testing', 'packaging'].includes(oldType)) {
+                    // 如果旧类型是物品类型，需要收集时间信息
+                    const times = [];
+                    let hasValidTime = false;
+                    
+                    document.querySelectorAll('.time-row').forEach((row, index) => {
+                      const start = row.querySelector('.start-time-input').value;
+                      const end = row.querySelector('.end-time-input').value;
+                      
+                      // 如果开始和结束时间都不为空，则认为是有效行
+                      if (start && end) {
+                        // 验证时间逻辑
+                        if (new Date(start) >= new Date(end)) {
+                          alert(`第${index + 1}行时间段不正确，开始时间必须早于结束时间`);
+                          // 恢复原来的类型
+                          record.type = oldType;
+                          return;
+                        }
+                        hasValidTime = true;
+                        times.push({ start, end });
+                      }
+                      // 如果开始或结束时间有一个不为空但另一个为空，提示用户
+                      else if (start || end) {
+                        alert(`第${index + 1}行时间段不完整，请填写完整的开始和结束时间`);
+                        // 恢复原来的类型
+                        record.type = oldType;
+                        return;
+                      }
+                    });
+                    
+                    const participants = document.getElementById('participants-input').value.trim();
+                    
+                    if (!participants) {
+                      alert('请输入参与人员');
+                      // 恢复原来的类型
+                      record.type = oldType;
+                      return;
+                    }
+                    
+                    if (!hasValidTime) {
+                      alert('请至少填写一个有效的时间段');
+                      // 恢复原来的类型
+                      record.type = oldType;
+                      return;
+                    }
+                    
+                    record.times = times;
+                    record.participants = participants;
+                    // 清除物品信息
+                    delete record.items;
+                  } else {
+                    // 如果旧类型也是时间类型，重新收集时间信息
+                    const times = [];
+                    let hasValidTime = false;
+                    
+                    document.querySelectorAll('.time-row').forEach((row, index) => {
+                      const start = row.querySelector('.start-time-input').value;
+                      const end = row.querySelector('.end-time-input').value;
+                      
+                      // 如果开始和结束时间都不为空，则认为是有效行
+                      if (start && end) {
+                        // 验证时间逻辑
+                        if (new Date(start) >= new Date(end)) {
+                          alert(`第${index + 1}行时间段不正确，开始时间必须早于结束时间`);
+                          // 恢复原来的类型
+                          record.type = oldType;
+                          return;
+                        }
+                        hasValidTime = true;
+                        times.push({ start, end });
+                      }
+                      // 如果开始或结束时间有一个不为空但另一个为空，提示用户
+                      else if (start || end) {
+                        alert(`第${index + 1}行时间段不完整，请填写完整的开始和结束时间`);
+                        // 恢复原来的类型
+                        record.type = oldType;
+                        return;
+                      }
+                    });
+                    
+                    const participants = document.getElementById('participants-input').value.trim();
+                    
+                    if (!participants) {
+                      alert('请输入参与人员');
+                      // 恢复原来的类型
+                      record.type = oldType;
+                      return;
+                    }
+                    
+                    if (!hasValidTime) {
+                      alert('请至少填写一个有效的时间段');
+                      // 恢复原来的类型
+                      record.type = oldType;
+                      return;
+                    }
+                    
+                    record.times = times;
+                    record.participants = participants;
                   }
-                  
-                  record.times = times;
-                  record.participants = participants;
                 }
                 
                 // 保存到数据管理器
@@ -2258,7 +2837,7 @@
                     notes: notes
                   };
                   
-                  if (['outbound', 'inbound', 'packaging'].includes(selectedType)) {
+                  if (['outbound', 'inbound', 'welding', 'testing', 'packaging'].includes(selectedType)) {
                     const items = [];
                     let hasValidItem = false;
                     
@@ -2476,6 +3055,8 @@
               document.getElementById('employee-name').value = employee.name;
               document.getElementById('employee-phone').value = employee.phone || '';
               document.getElementById('employee-notes').value = employee.notes || '';
+              document.getElementById('employee-packing-tier').value = employee.packingTier || '1';
+              document.getElementById('employee-loading-tier').value = employee.loadingTier || '1';
               
               // 显示弹窗
               self.showModal('employee-modal');
@@ -2491,6 +3072,8 @@
                 employee.name = document.getElementById('employee-name').value.trim();
                 employee.phone = document.getElementById('employee-phone').value.trim();
                 employee.notes = document.getElementById('employee-notes').value.trim();
+                employee.packingTier = document.getElementById('employee-packing-tier').value;
+                employee.loadingTier = document.getElementById('employee-loading-tier').value;
                 
                 // 保存到数据管理器
                 DataManager.updateEmployee(employee);
@@ -2503,6 +3086,8 @@
                 document.getElementById('employee-name').value = '';
                 document.getElementById('employee-phone').value = '';
                 document.getElementById('employee-notes').value = '';
+                document.getElementById('employee-packing-tier').value = '1';
+                document.getElementById('employee-loading-tier').value = '1';
                 
                 // 重新绑定原始保存按钮行为
                 const resetSaveBtn = newSaveBtn.cloneNode(true);
@@ -2511,13 +3096,15 @@
                   const name = document.getElementById('employee-name').value.trim();
                   const phone = document.getElementById('employee-phone').value.trim();
                   const notes = document.getElementById('employee-notes').value.trim();
+                  const packingTier = document.getElementById('employee-packing-tier').value;
+                  const loadingTier = document.getElementById('employee-loading-tier').value;
                   
                   if (!name) {
                     alert('请输入员工姓名');
                     return;
                   }
                   
-                  DataManager.addEmployee({ name, phone, notes });
+                  DataManager.addEmployee({ name, phone, notes, packingTier, loadingTier });
                   self.renderEmployees();
                   self.hideAllModals();
                   
@@ -2525,6 +3112,8 @@
                   document.getElementById('employee-name').value = '';
                   document.getElementById('employee-phone').value = '';
                   document.getElementById('employee-notes').value = '';
+                  document.getElementById('employee-packing-tier').value = '1';
+                  document.getElementById('employee-loading-tier').value = '1';
                 });
               });
             }
@@ -2629,6 +3218,8 @@
           const typeLabels = {
             'outbound': '出库',
             'inbound': '入库',
+            'welding': '焊接',
+            'testing': '验灯',
             'packaging': '包装',
             'packing': '打包',
             'loading': '装卸货'
@@ -2674,6 +3265,8 @@
           const typeLabels = {
             'outbound': '出库',
             'inbound': '入库',
+            'welding': '焊接',
+            'testing': '验灯',
             'packaging': '包装',
             'packing': '打包',
             'loading': '装卸货'
@@ -2739,7 +3332,452 @@
     document.addEventListener('DOMContentLoaded', () => {
       DataManager.init();
       UIManager.init();
+      
+      // 初始化单价设置功能
+      initPriceSettings();
+      
+      // 初始化支出管理模块
+      initExpensesModule();
     });
+    
+    // 单价设置功能初始化
+    function initPriceSettings() {
+      // 检查元素是否存在
+      const saveBtn = document.getElementById('save-price-settings');
+      const addBtn = document.getElementById('add-price-item');
+      
+      if (saveBtn) {
+        // 绑定保存按钮事件
+        saveBtn.addEventListener('click', savePrices);
+      }
+      
+      if (addBtn) {
+        // 绑定添加物品按钮事件
+        addBtn.addEventListener('click', addPriceItem);
+      }
+      
+      // 加载已保存的价格数据
+      loadPrices();
+      
+      // 渲染物品单价设置项
+      renderPriceItems();
+    }
+    
+    // 加载价格数据
+    function loadPrices() {
+      const prices = DataManager.getPrices();
+      
+      // 设置打包费用档位
+      if (prices.packagingCostTier1) {
+        const packingFeeInput1 = document.getElementById('packing-fee-tier1');
+        if (packingFeeInput1) {
+          packingFeeInput1.value = prices.packagingCostTier1;
+        }
+      }
+      if (prices.packagingCostTier2) {
+        const packingFeeInput2 = document.getElementById('packing-fee-tier2');
+        if (packingFeeInput2) {
+          packingFeeInput2.value = prices.packagingCostTier2;
+        }
+      }
+      
+      // 设置装卸货费用档位
+      if (prices.loadingCostTier1) {
+        const loadingFeeInput1 = document.getElementById('loading-fee-tier1');
+        if (loadingFeeInput1) {
+          loadingFeeInput1.value = prices.loadingCostTier1;
+        }
+      }
+      if (prices.loadingCostTier2) {
+        const loadingFeeInput2 = document.getElementById('loading-fee-tier2');
+        if (loadingFeeInput2) {
+          loadingFeeInput2.value = prices.loadingCostTier2;
+        }
+      }
+    }
+    
+    // 保存价格数据
+    function savePrices() {
+      const prices = {};
+      
+      // 保存打包费用档位
+      const packingFeeInput1 = document.getElementById('packing-fee-tier1');
+      const packingFeeInput2 = document.getElementById('packing-fee-tier2');
+      
+      prices.packagingCostTier1 = packingFeeInput1 ? parseFloat(packingFeeInput1.value) || 0 : 0;
+      prices.packagingCostTier2 = packingFeeInput2 ? parseFloat(packingFeeInput2.value) || 0 : 0;
+      
+      // 保存装卸货费用档位
+      const loadingFeeInput1 = document.getElementById('loading-fee-tier1');
+      const loadingFeeInput2 = document.getElementById('loading-fee-tier2');
+      
+      prices.loadingCostTier1 = loadingFeeInput1 ? parseFloat(loadingFeeInput1.value) || 0 : 0;
+      prices.loadingCostTier2 = loadingFeeInput2 ? parseFloat(loadingFeeInput2.value) || 0 : 0;
+      
+      // 保存物品单价
+      prices.items = {};
+      document.querySelectorAll('.price-item-row').forEach(row => {
+        const itemName = row.querySelector('.item-name').textContent;
+        const manualPrice = parseFloat(row.querySelector('.manual-price').value) || 0;
+        const weldingPrice = parseFloat(row.querySelector('.welding-price').value) || 0;
+        const inspectionPrice = parseFloat(row.querySelector('.inspection-price').value) || 0;
+        const packagingPrice = parseFloat(row.querySelector('.packaging-price').value) || 0;
+        
+        prices.items[itemName] = {
+          manual: manualPrice,
+          welding: weldingPrice,
+          inspection: inspectionPrice,
+          packaging: packagingPrice
+        };
+      });
+      
+      DataManager.savePrices(prices);
+      alert('价格设置已保存');
+    }
+    
+    // 渲染物品单价设置项
+    function renderPriceItems() {
+      const container = document.getElementById('price-items-container');
+      const items = DataManager.getItems();
+      
+      // 清空现有内容
+      container.innerHTML = '';
+      
+      // 添加表头
+      const headerRow = document.createElement('div');
+      headerRow.className = 'grid grid-cols-12 gap-2 mb-2 text-sm font-medium bg-gray-100 p-2 rounded';
+      
+      const nameHeader = document.createElement('div');
+      nameHeader.className = 'col-span-4';
+      nameHeader.textContent = '物品名称';
+      
+      const manualHeader = document.createElement('div');
+      manualHeader.className = 'col-span-2 text-center';
+      manualHeader.textContent = '手工';
+      
+      const weldingHeader = document.createElement('div');
+      weldingHeader.className = 'col-span-2 text-center';
+      weldingHeader.textContent = '焊接';
+      
+      const inspectionHeader = document.createElement('div');
+      inspectionHeader.className = 'col-span-2 text-center';
+      inspectionHeader.textContent = '验灯';
+      
+      const packagingHeader = document.createElement('div');
+      packagingHeader.className = 'col-span-2 text-center';
+      packagingHeader.textContent = '包装';
+      
+      headerRow.appendChild(nameHeader);
+      headerRow.appendChild(manualHeader);
+      headerRow.appendChild(weldingHeader);
+      headerRow.appendChild(inspectionHeader);
+      headerRow.appendChild(packagingHeader);
+      
+      container.appendChild(headerRow);
+      
+      // 为每个物品创建价格设置行
+      items.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'price-item-row grid grid-cols-12 gap-2 mb-2 p-2 border rounded';
+        
+        // 物品名称
+        const nameDiv = document.createElement('div');
+        nameDiv.className = 'item-name col-span-4 flex items-center text-sm font-medium';
+        nameDiv.textContent = item.name;
+        
+        // 手工单价
+        const manualInput = document.createElement('input');
+        manualInput.type = 'number';
+        manualInput.className = 'manual-price col-span-2 px-2 py-1 border rounded text-sm text-center';
+        manualInput.placeholder = '手工';
+        manualInput.step = '0.01';
+        
+        // 焊接单价
+        const weldingInput = document.createElement('input');
+        weldingInput.type = 'number';
+        weldingInput.className = 'welding-price col-span-2 px-2 py-1 border rounded text-sm text-center';
+        weldingInput.placeholder = '焊接';
+        weldingInput.step = '0.01';
+        
+        // 验灯单价
+        const inspectionInput = document.createElement('input');
+        inspectionInput.type = 'number';
+        inspectionInput.className = 'inspection-price col-span-2 px-2 py-1 border rounded text-sm text-center';
+        inspectionInput.placeholder = '验灯';
+        inspectionInput.step = '0.01';
+        
+        // 包装单价
+        const packagingInput = document.createElement('input');
+        packagingInput.type = 'number';
+        packagingInput.className = 'packaging-price col-span-2 px-2 py-1 border rounded text-sm text-center';
+        packagingInput.placeholder = '包装';
+        packagingInput.step = '0.01';
+        
+        // 组装行
+        row.appendChild(nameDiv);
+        row.appendChild(manualInput);
+        row.appendChild(weldingInput);
+        row.appendChild(inspectionInput);
+        row.appendChild(packagingInput);
+        
+        container.appendChild(row);
+      });
+      
+      // 加载已保存的价格数据到输入框
+      const prices = DataManager.getPrices();
+      if (prices.items) {
+        document.querySelectorAll('.price-item-row').forEach(row => {
+          const itemName = row.querySelector('.item-name').textContent;
+          const itemPrices = prices.items[itemName];
+          
+          if (itemPrices) {
+            row.querySelector('.manual-price').value = itemPrices.manual || 0;
+            row.querySelector('.welding-price').value = itemPrices.welding || 0;
+            row.querySelector('.inspection-price').value = itemPrices.inspection || 0;
+            row.querySelector('.packaging-price').value = itemPrices.packaging || 0;
+          }
+        });
+      }
+    }
+    
+    // 添加物品到单价设置
+    function addPriceItem() {
+      const itemName = prompt('请输入物品名称:');
+      if (itemName) {
+        // 检查是否已存在
+        const existingItems = DataManager.getItems();
+        const itemExists = existingItems.some(item => item.name === itemName);
+        
+        // 如果物品不存在，则添加到DataManager
+        if (!itemExists) {
+          DataManager.addItem({ name: itemName, category: '自定义', notes: '单价设置中添加' });
+        }
+        
+        // 重新渲染价格设置项
+        renderPriceItems();
+      }
+    }
+    
+    // 支出管理相关函数
+    function showAddExpenseModal() {
+      // 创建弹窗元素
+      const modal = document.createElement('div');
+      modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+      modal.id = 'add-expense-modal';
+      
+      modal.innerHTML = `
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold">添加支出记录</h3>
+            <button onclick="closeAddExpenseModal()" class="text-gray-500 hover:text-gray-700">
+              <i class="fa fa-times"></i>
+            </button>
+          </div>
+          <form id="add-expense-form">
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">姓名</label>
+              <input type="text" id="expense-name" class="w-full px-3 py-2 border rounded-md" required>
+            </div>
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">支付金额</label>
+              <input type="number" id="expense-amount" class="w-full px-3 py-2 border rounded-md" step="0.01" required>
+            </div>
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">支付方式</label>
+              <select id="expense-method" class="w-full px-3 py-2 border rounded-md" required>
+                <option value="现金">现金</option>
+                <option value="微信">微信</option>
+                <option value="支付宝">支付宝</option>
+                <option value="银行转账">银行转账</option>
+              </select>
+            </div>
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">日期</label>
+              <input type="date" id="expense-date" class="w-full px-3 py-2 border rounded-md" required>
+            </div>
+            <div class="flex justify-end space-x-2">
+              <button type="button" onclick="closeAddExpenseModal()" class="px-4 py-2 text-gray-600 border rounded-md">取消</button>
+              <button type="submit" class="px-4 py-2 bg-primary text-white rounded-md">添加</button>
+            </div>
+          </form>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      
+      // 设置默认日期为今天
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('expense-date').value = today;
+      
+      // 添加表单提交事件监听器
+      document.getElementById('add-expense-form').addEventListener('submit', handleAddExpense);
+    }
+    
+    function closeAddExpenseModal() {
+      const modal = document.getElementById('add-expense-modal');
+      if (modal) {
+        modal.remove();
+      }
+    }
+    
+    function handleAddExpense(e) {
+      e.preventDefault();
+      
+      // 获取表单数据
+      const name = document.getElementById('expense-name').value;
+      const amount = parseFloat(document.getElementById('expense-amount').value);
+      const method = document.getElementById('expense-method').value;
+      const date = document.getElementById('expense-date').value;
+      
+      // 创建支出记录对象
+      const expense = {
+        id: Date.now(), // 使用时间戳作为唯一ID
+        name,
+        amount,
+        method,
+        date
+      };
+      
+      // 保存到本地存储
+      saveExpense(expense);
+      
+      // 重新渲染支出列表
+      renderExpenses();
+      
+      // 关闭弹窗
+      closeAddExpenseModal();
+      
+      // 不显示成功消息
+      // alert('支出记录已添加');
+    }
+    
+    function saveExpense(expense) {
+      // 从本地存储获取现有支出记录
+      let expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+      
+      // 添加新记录
+      expenses.push(expense);
+      
+      // 保存回本地存储
+      localStorage.setItem('expenses', JSON.stringify(expenses));
+    }
+    
+    function deleteExpense(id) {
+      // 从本地存储获取现有支出记录
+      let expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+      
+      // 过滤掉要删除的记录
+      expenses = expenses.filter(expense => expense.id !== id);
+      
+      // 保存回本地存储
+      localStorage.setItem('expenses', JSON.stringify(expenses));
+      
+      // 重新渲染支出列表
+      renderExpenses();
+    }
+    
+    function renderExpenses() {
+      // 从本地存储获取支出记录
+      let expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+      
+      // 获取筛选条件
+      const searchFilter = document.getElementById('expense-search').value.toLowerCase();
+      const methodFilter = document.getElementById('expense-search-method').value;
+      
+      // 应用筛选条件
+      expenses = expenses.filter(expense => {
+        // 综合搜索筛选（姓名、金额、日期）
+        if (searchFilter) {
+          // 检查姓名是否匹配
+          if (expense.name.toLowerCase().includes(searchFilter)) {
+            // 姓名匹配，继续检查其他条件
+          } else {
+            // 检查金额是否匹配
+            const amountStr = expense.amount.toString();
+            if (amountStr.includes(searchFilter)) {
+              // 金额匹配，继续检查其他条件
+            } else {
+              // 检查日期是否匹配
+              if (expense.date.includes(searchFilter)) {
+                // 日期匹配，继续检查其他条件
+              } else {
+                // 都不匹配，过滤掉该记录
+                return false;
+              }
+            }
+          }
+        }
+        
+        // 支付方式筛选
+        if (methodFilter && expense.method !== methodFilter) {
+          return false;
+        }
+        
+        return true;
+      });
+      
+      // 获取容器元素
+      const container = document.getElementById('expenses-container');
+      
+      // 清空现有内容
+      container.innerHTML = '';
+      
+      // 如果没有支出记录，显示提示信息
+      if (expenses.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-center col-span-full py-8">暂无支出记录</p>';
+        return;
+      }
+      
+      // 为每个支出记录创建卡片
+      expenses.forEach(expense => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-lg shadow-md p-4 border';
+        
+        // 格式化日期
+        const formattedDate = new Date(expense.date).toLocaleDateString('zh-CN');
+        
+        card.innerHTML = `
+          <div class="flex justify-between items-start mb-2">
+            <h4 class="font-semibold">${expense.name}</h4>
+            <span class="text-red-600 font-bold">¥${expense.amount.toFixed(2)}</span>
+          </div>
+          <div class="text-sm text-gray-600 mb-1">
+            <i class="fa fa-credit-card mr-1"></i>${expense.method}
+          </div>
+          <div class="text-xs text-gray-500 mb-2">
+            <i class="fa fa-calendar mr-1"></i>${formattedDate}
+          </div>
+          <div class="flex justify-end">
+            <button class="delete-expense-btn text-red-500 hover:text-red-700" data-id="${expense.id}">
+              <i class="fa fa-trash"></i>
+            </button>
+          </div>
+        `;
+        
+        container.appendChild(card);
+      });
+      
+      // 为删除按钮添加事件监听器
+      document.querySelectorAll('.delete-expense-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const id = parseInt(this.getAttribute('data-id'));
+          deleteExpense(id);
+        });
+      });
+    }
+    
+    // 初始化支出管理模块
+    function initExpensesModule() {
+      // 添加支出按钮事件监听器
+      document.getElementById('add-expense-btn').addEventListener('click', showAddExpenseModal);
+      
+      // 添加搜索框事件监听器
+      document.getElementById('expense-search').addEventListener('input', renderExpenses);
+      document.getElementById('expense-search-method').addEventListener('change', renderExpenses);
+      
+      // 初始渲染支出列表
+      renderExpenses();
+    }
   </script>
 </body>
 </html>
